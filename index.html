@@ -3,93 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coming Soon</title>
+  <title>Smartly Academy — Launching Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
-    
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: #fff;
-      height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: #2d3748;
+      line-height: 1.7;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
       text-align: center;
-      padding: 20px;
     }
+    .container { max-width: 720px; width: 100%; }
     h1 {
+      font-family: 'Libre Baskerville', serif;
       font-size: 2.8rem;
+      color: #1a365d;
       margin-bottom: 1rem;
-      letter-spacing: 1px;
+      letter-spacing: -0.5px;
     }
-    p {
+    .subtitle {
       font-size: 1.2rem;
-      max-width: 600px;
-      margin-bottom: 2rem;
-      opacity: 0.9;
+      color: #4a5568;
+      margin-bottom: 2.5rem;
+      font-weight: 500;
     }
-    .email {
-      background: rgba(255,255,255,0.1);
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50px;
-      padding: 12px 24px;
-      font-size: 1rem;
-      color: #fff;
-      backdrop-filter: blur(10px);
-      transition: 0.3s;
+    .status {
+      font-size: 1.1rem;
+      color: #2b6cb0;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
     }
-    .email:focus {
-      outline: none;
-      border-color: #fff;
-      background: rgba(255,255,255,0.2);
-    }
-    .social {
+    .footer {
+      font-size: 0.9rem;
+      color: #718096;
       margin-top: 3rem;
     }
-    .social a {
-      color: #fff;
-      font-size: 1.8rem;
-      margin: 0 15px;
-      opacity: 0.7;
-      transition: 0.3s;
-    }
-    .social a:hover { opacity: 1; transform: scale(1.2); }
-    .footer {
-      position: absolute;
-      bottom: 20px;
-      font-size: 0.9rem;
-      opacity: 0.6;
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+      background: #2b6cb0;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>Coming Soon</h1>
-  <p>We're working hard to launch something awesome. Stay tuned!</p>
-  
-  <input type="email" placeholder="Get notified when we launch" class="email" />
+  <div class="container">
+    <div class="logo">SA</div>
+    <h1>Smartly Academy</h1>
+    <p class="subtitle">A new standard in online education — launching soon.</p>
+    <p class="status">Platform under development</p>
 
-  <div class="social">
-    <a href="https://twitter.com/yourhandle" target="_blank">Twitter</a>
-    <a href="https://github.com/yourusername" target="_blank">GitHub</a>
-    <a href="mailto:hello@yourdomain.com">Email</a>
+    <div class="footer">
+      © 2025 Smartly Academy. All rights reserved.<br>
+      <small>Preparing the future of learning.</small>
+    </div>
   </div>
-
-  <div class="footer">
-    © 2025 Your Project. All rights reserved.
-  </div>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <script>
-    // Optional: Add simple email capture (replace with your form handler later)
-    document.querySelector('.email').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        alert('Thanks! We’ll email you at: ' + this.value);
-        this.value = '';
-      }
-    });
-  </script>
 </body>
 </html>
