@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Academy — Cognitive Training Lab (Chess)</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Chessground CSS (Dark minimalist custom) -->
+  <link rel="stylesheet" href="https://assets.lichess1.org/assets/_0/css/chessground.css">
+  <link rel="stylesheet" href="https://assets.lichess1.org/assets/_0/css/chessground.brown.css">
+  
+  <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --board-bg: #1e1e1e;
+      --accent: #2b6cb0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 3rem 1rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 2.2rem;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+    p.subtitle {
+      color: #a0aec0;
+      font-size: 1rem;
+    }
+    
+    .lab-container {
+      display: flex;
+      gap: 2rem;
+      background: var(--board-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .board-wrapper {
+      width: 400px;
+      height: 400px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    /* Override Lichess brown theme with a more minimalist dark grey if needed, but the default brown provides good contrast. */
+    .cg-wrap {
+      width: 100%;
+      height: 100%;
+    }
+
+    .ai-panel {
+      width: 300px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .ai-header {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.5rem;
+    }
+    
+    .ai-log {
+      flex-grow: 1;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #a0aec0;
+      overflow-y: auto;
+      max-height: 300px;
+    }
+    
+    .log-entry {
+      margin-bottom: 0.5rem;
+    }
+    .log-move { color: #fff; font-weight: bold; }
+
+    .controls {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #2c5282;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Cognitive Training Lab</h1>
+    <p class="subtitle">Phase 1: Chess Prototype | Smartly Academy</p>
+  </header>
+
+  <div class="lab-container">
+    <div class="board-wrapper">
+      <div id="board" class="cg-wrap cg-brown"></div>
+    </div>
+    
+    <div class="ai-panel">
+      <div class="ai-header">AI Coach (Superhans)</div>
+      <div id="ai-log" class="ai-log">
+        <div class="log-entry">⚡ System initialized.</div>
+        <div class="log-entry">Waiting for your first move, Allen...</div>
+      </div>
+      <div class="controls">
+        <button id="reset-btn">Reset Board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependencies: Chess.js for logic, Chessground for UI -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://assets.lichess1.org/assets/_0/js/chessground.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const game = new Chess();
+      const logElement = document.getElementById('ai-log');
+      let ground;
+
+      function logMessage(msg) {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = msg;
+        logElement.appendChild(entry);
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      function onMove(orig, dest) {
+        // Attempt the move using chess.js
+        const move = game.move({
+          from: orig,
+          to: dest,
+          promotion: 'q' // Always promote to queen for simplicity in prototype
+        });
+
+        if (move === null) {
+          // Illegal move, snap back
+          ground.set({ fen: game.fen() });
+          return;
+        }
+
+        // Legal move executed
+        logMessage(`User played <span class="log-move">${move.san}</span>.`);
+        
+        // Check game state
+        if (game.in_checkmate()) {
+          logMessage("⚡ Checkmate. Training session concluded.");
+        } else if (game.in_draw()) {
+          logMessage("⚡ Draw. Deadlock achieved.");
+        } else if (game.in_check()) {
+          logMessage("⚡ Check. Watch your king.");
+        }
+
+        // Update the board
+        ground.set({
+          fen: game.fen(),
+          turnColor: toColor(game.turn()),
+          movable: {
+            color: toColor(game.turn()),
+            dests: getValidMoves()
+          }
+        });
+      }
+
+      function toColor(c) {
+        return c === 'w' ? 'white' : 'black';
+      }
+
+      function getValidMoves() {
+        const dests = new Map();
+        game.SQUARES.forEach(s => {
+          const ms = game.moves({square: s, verbose: true});
+          if (ms.length) dests.set(s, ms.map(m => m.to));
+        });
+        return dests;
+      }
+
+      function initBoard() {
+        game.reset();
+        ground = Chessground(document.getElementById('board'), {
+          fen: game.fen(),
+          orientation: 'white',
+          turnColor: 'white',
+          movable: {
+            color: 'white',
+            free: false,
+            dests: getValidMoves(),
+            events: { after: onMove }
+          },
+          animation: { enabled: true, duration: 200 }
+        });
+        logElement.innerHTML = '<div class="log-entry">⚡ System initialized.</div><div class="log-entry">Waiting for your first move...</div>';
+      }
+
+      initBoard();
+
+      document.getElementById('reset-btn').addEventListener('click', initBoard);
+    });
+  </script>
+</body>
+</html>
