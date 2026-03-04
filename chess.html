@@ -9,9 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   
   <!-- Chessground CSS (Base, Board, and Pieces) -->
-  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.base.css">
-  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.brown.css">
-  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.cburnett.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.base.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.brown.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.cburnett.css">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -79,7 +79,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   
   <!-- Chessground JS -->
-  <script src="https://unpkg.com/chessground/chessground.min.js"></script>
+  <script src="https://unpkg.com/chessground@9.2.1/chessground.min.js"></script>
 
   <script>
     // Initialize game logic
@@ -98,6 +98,7 @@
 
     // Initialize the board UI
     const board = Chessground(document.getElementById('board'), {
+      fen: 'start',
       movable: {
         color: 'white',
         free: false,
