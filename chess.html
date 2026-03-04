@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Academy — Cognitive Training</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Chessground CSS (Base, Board, and Pieces) -->
+  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.base.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.brown.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground/assets/chessground.cburnett.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #121212; /* Dark, minimalist aesthetic */
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+    p.subtitle {
+      color: #888;
+      font-size: 1rem;
+    }
+    /* The Chess Board Container */
+    #board-container {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .cg-wrap {
+      width: 100%;
+      height: 100%;
+    }
+    .status-panel {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      background: #1e1e1e;
+      border-radius: 8px;
+      font-family: monospace;
+      color: #4ade80;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Smartly Academy</h1>
+    <p class="subtitle">Cognitive Training Module: Prototype</p>
+  </header>
+
+  <div id="board-container">
+    <div id="board" class="cg-wrap"></div>
+  </div>
+
+  <div class="status-panel" id="status">
+    System initialized. Awaiting white's move.
+  </div>
+
+  <!-- Chess.js for move validation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  
+  <!-- Chessground JS -->
+  <script src="https://unpkg.com/chessground/chessground.min.js"></script>
+
+  <script>
+    // Initialize game logic
+    const game = new Chess();
+    const statusEl = document.getElementById('status');
+
+    // Helper: calculate legal moves for Chessground
+    function calculateDests() {
+      const dests = new Map();
+      game.SQUARES.forEach(s => {
+        const ms = game.moves({ square: s, verbose: true });
+        if (ms.length) dests.set(s, ms.map(m => m.to));
+      });
+      return dests;
+    }
+
+    // Initialize the board UI
+    const board = Chessground(document.getElementById('board'), {
+      movable: {
+        color: 'white',
+        free: false,
+        dests: calculateDests(),
+        events: {
+          after: onMove
+        }
+      }
+    });
+
+    // Handle a move made by the user
+    function onMove(orig, dest) {
+      // Apply move to chess.js engine
+      game.move({ from: orig, to: dest, promotion: 'q' }); // Auto-promote to Queen for prototype
+
+      statusEl.innerText = "Move registered: " + orig + "-" + dest + ". Awaiting black's response...";
+
+      // Update board state
+      board.set({
+        turnColor: game.turn() === 'w' ? 'white' : 'black',
+        movable: {
+          color: game.turn() === 'w' ? 'white' : 'black',
+          dests: calculateDests()
+        }
+      });
+
+      // Simple AI response for Phase 2 testing (Random Legal Move)
+      if (game.turn() === 'b' && !game.game_over()) {
+        setTimeout(makeRandomMove, 600);
+      }
+    }
+
+    // Phase 2: Bot plays a random legal move
+    function makeRandomMove() {
+      const moves = game.moves({ verbose: true });
+      if (moves.length === 0) {
+        statusEl.innerText = "Game Over.";
+        return;
+      }
+      const move = moves[Math.floor(Math.random() * moves.length)];
+      
+      game.move(move.san);
+      board.move(move.from, move.to);
+      
+      statusEl.innerText = "Black played " + move.san + ". Your turn.";
+
+      board.set({
+        turnColor: 'white',
+        movable: {
+          color: 'white',
+          dests: calculateDests()
+        }
+      });
+      
+      if (game.game_over()) {
+        statusEl.innerText = "Game Over.";
+      }
+    }
+  </script>
+</body>
+</html>
