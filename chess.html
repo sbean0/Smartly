@@ -78,10 +78,10 @@
   <!-- Chess.js for move validation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   
-  <!-- Chessground JS -->
-  <script src="https://unpkg.com/chessground@9.2.1/dist/chessground.min.js"></script>
+  <!-- Import modern Chessground JS as an ES Module -->
+  <script type="module">
+    import { Chessground } from 'https://unpkg.com/chessground@9.2.1/dist/chessground.js';
 
-  <script>
     window.addEventListener('load', () => {
       // Initialize game logic
       const game = new Chess();
@@ -90,9 +90,13 @@
       // Helper: calculate legal moves for Chessground
       function calculateDests() {
         const dests = new Map();
-        game.SQUARES.forEach(s => {
-          const ms = game.moves({ square: s, verbose: true });
-          if (ms.length) dests.set(s, ms.map(m => m.to));
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        files.forEach(f => {
+          for(let i = 1; i <= 8; i++) {
+            const s = f + i;
+            const ms = game.moves({ square: s, verbose: true });
+            if (ms.length) dests.set(s, ms.map(m => m.to));
+          }
         });
         return dests;
       }
