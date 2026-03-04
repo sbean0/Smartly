@@ -82,81 +82,83 @@
   <script src="https://unpkg.com/chessground@9.2.1/dist/chessground.min.js"></script>
 
   <script>
-    // Initialize game logic
-    const game = new Chess();
-    const statusEl = document.getElementById('status');
+    window.addEventListener('load', () => {
+      // Initialize game logic
+      const game = new Chess();
+      const statusEl = document.getElementById('status');
 
-    // Helper: calculate legal moves for Chessground
-    function calculateDests() {
-      const dests = new Map();
-      game.SQUARES.forEach(s => {
-        const ms = game.moves({ square: s, verbose: true });
-        if (ms.length) dests.set(s, ms.map(m => m.to));
+      // Helper: calculate legal moves for Chessground
+      function calculateDests() {
+        const dests = new Map();
+        game.SQUARES.forEach(s => {
+          const ms = game.moves({ square: s, verbose: true });
+          if (ms.length) dests.set(s, ms.map(m => m.to));
+        });
+        return dests;
+      }
+
+      // Initialize the board UI
+      const board = Chessground(document.getElementById('board'), {
+        fen: 'start',
+        movable: {
+          color: 'white',
+          free: false,
+          dests: calculateDests(),
+          events: {
+            after: onMove
+          }
+        }
       });
-      return dests;
-    }
 
-    // Initialize the board UI
-    const board = Chessground(document.getElementById('board'), {
-      fen: 'start',
-      movable: {
-        color: 'white',
-        free: false,
-        dests: calculateDests(),
-        events: {
-          after: onMove
+      // Handle a move made by the user
+      function onMove(orig, dest) {
+        // Apply move to chess.js engine
+        game.move({ from: orig, to: dest, promotion: 'q' }); // Auto-promote to Queen for prototype
+
+        statusEl.innerText = "Move registered: " + orig + "-" + dest + ". Awaiting black's response...";
+
+        // Update board state
+        board.set({
+          turnColor: game.turn() === 'w' ? 'white' : 'black',
+          movable: {
+            color: game.turn() === 'w' ? 'white' : 'black',
+            dests: calculateDests()
+          }
+        });
+
+        // Simple AI response for Phase 2 testing (Random Legal Move)
+        if (game.turn() === 'b' && !game.game_over()) {
+          setTimeout(makeRandomMove, 600);
+        }
+      }
+
+      // Phase 2: Bot plays a random legal move
+      function makeRandomMove() {
+        const moves = game.moves({ verbose: true });
+        if (moves.length === 0) {
+          statusEl.innerText = "Game Over.";
+          return;
+        }
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        
+        game.move(move.san);
+        board.move(move.from, move.to);
+        
+        statusEl.innerText = "Black played " + move.san + ". Your turn.";
+
+        board.set({
+          turnColor: 'white',
+          movable: {
+            color: 'white',
+            dests: calculateDests()
+          }
+        });
+        
+        if (game.game_over()) {
+          statusEl.innerText = "Game Over.";
         }
       }
     });
-
-    // Handle a move made by the user
-    function onMove(orig, dest) {
-      // Apply move to chess.js engine
-      game.move({ from: orig, to: dest, promotion: 'q' }); // Auto-promote to Queen for prototype
-
-      statusEl.innerText = "Move registered: " + orig + "-" + dest + ". Awaiting black's response...";
-
-      // Update board state
-      board.set({
-        turnColor: game.turn() === 'w' ? 'white' : 'black',
-        movable: {
-          color: game.turn() === 'w' ? 'white' : 'black',
-          dests: calculateDests()
-        }
-      });
-
-      // Simple AI response for Phase 2 testing (Random Legal Move)
-      if (game.turn() === 'b' && !game.game_over()) {
-        setTimeout(makeRandomMove, 600);
-      }
-    }
-
-    // Phase 2: Bot plays a random legal move
-    function makeRandomMove() {
-      const moves = game.moves({ verbose: true });
-      if (moves.length === 0) {
-        statusEl.innerText = "Game Over.";
-        return;
-      }
-      const move = moves[Math.floor(Math.random() * moves.length)];
-      
-      game.move(move.san);
-      board.move(move.from, move.to);
-      
-      statusEl.innerText = "Black played " + move.san + ". Your turn.";
-
-      board.set({
-        turnColor: 'white',
-        movable: {
-          color: 'white',
-          dests: calculateDests()
-        }
-      });
-      
-      if (game.game_over()) {
-        statusEl.innerText = "Game Over.";
-      }
-    }
   </script>
 </body>
 </html>
