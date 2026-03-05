@@ -121,8 +121,9 @@
 
         statusEl.innerText = "Move registered: " + orig + "-" + dest + ". Awaiting black's response...";
 
-        // Update board state
+        // Update board state to match the chess engine exactly (promotions, castling, en passant)
         board.set({
+          fen: game.fen(),
           turnColor: game.turn() === 'w' ? 'white' : 'black',
           movable: {
             color: game.turn() === 'w' ? 'white' : 'black',
@@ -151,6 +152,7 @@
         statusEl.innerText = "Black played " + move.san + ". Your turn.";
 
         board.set({
+          fen: game.fen(),
           turnColor: 'white',
           movable: {
             color: 'white',
