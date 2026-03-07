@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Academy — Multiplayer Chess</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.base.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.brown.css">
+  <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.cburnett.css">
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    header { text-align: center; margin-bottom: 1rem; }
+    h1 { margin: 0; font-weight: 600; font-size: 1.5rem; }
+    p.subtitle { color: #888; font-size: 0.9rem; margin-top: 0.2rem; }
+
+    #board-container {
+      width: 100%;
+      max-width: 450px;
+      aspect-ratio: 1;
+      margin-bottom: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .cg-wrap { width: 100%; height: 100%; }
+
+    .controls {
+      width: 100%; max-width: 450px;
+      background: #1e1e1e; padding: 1.5rem;
+      border-radius: 8px; text-align: center;
+    }
+    .btn {
+      background: #4ade80; color: #000; border: none;
+      padding: 0.8rem 1.5rem; border-radius: 6px; font-weight: 600;
+      cursor: pointer; font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #22c55e; }
+    .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    .status-text {
+      margin-top: 0.5rem;
+      font-family: monospace;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    .highlight { color: #4ade80; font-weight: bold; }
+
+    #invite-area {
+      display: none;
+      margin-top: 1rem;
+      background: #2a2a2a;
+      padding: 1rem;
+      border-radius: 6px;
+      text-align: left;
+    }
+    .link-box {
+      width: 100%;
+      background: #121212;
+      color: #4ade80;
+      border: 1px solid #444;
+      padding: 0.8rem;
+      font-family: monospace;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    /* Chat Styling */
+    #chat-container {
+      width: 100%;
+      max-width: 450px;
+      background: #1e1e1e;
+      margin-top: 1rem;
+      border-radius: 8px;
+      padding: 1rem;
+      display: none; /* Hidden until connected */
+    }
+    #chat-history {
+      height: 150px;
+      overflow-y: auto;
+      background: #121212;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 0.5rem;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+    #chat-input-area {
+      display: flex;
+      gap: 0.5rem;
+    }
+    #chat-input {
+      flex: 1;
+      background: #121212;
+      border: 1px solid #333;
+      color: white;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+    #btn-send {
+      padding: 0.5rem 1rem;
+      background: #4ade80;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .msg-system { color: #eab308; font-style: italic; margin-bottom: 2px; }
+    .msg-me { color: #4ade80; margin-bottom: 2px; }
+    .msg-opp { color: #60a5fa; margin-bottom: 2px; }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Smartly Multiplayer</h1>
+    <p class="subtitle">Peer-to-Peer Encrypted Chess</p>
+  </header>
+
+  <div id="board-container">
+    <div id="board" class="cg-wrap"></div>
+  </div>
+
+  <div class="controls">
+    <div id="setup-area">
+      <button id="btn-create" class="btn" disabled>Create Game Link</button>
+      <div id="status" class="status-text">Connecting to network...</div>
+    </div>
+
+    <div id="invite-area">
+      <p style="margin:0; font-size:0.9rem; color:#ccc;">Send this link to your friend:</p>
+      <input type="text" id="invite-link" class="link-box" readonly onclick="this.select()">
+      <div style="margin-top:0.5rem; color:#eab308; font-size:0.8rem;">Waiting for opponent to join...</div>
+    </div>
+
+    <div id="game-status" class="status-text" style="display:none;"></div>
+  </div>
+
+  <div id="chat-container">
+    <div id="chat-history"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+      <button id="btn-send">Send</button>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  
+  <script type="module">
+    import { Chessground } from 'https://unpkg.com/chessground@9.2.1/dist/chessground.js';
+
+    // --- State ---
+    let game = new Chess();
+    let board = null;
+    let peer = null;
+    let conn = null;
+    let myColor = 'white'; // Host defaults to White
+    let isGameActive = false;
+
+    // --- UI Elements ---
+    const btnCreate = document.getElementById('btn-create');
+    const statusEl = document.getElementById('status');
+    const gameStatusEl = document.getElementById('game-status');
+    const inviteArea = document.getElementById('invite-area');
+    const setupArea = document.getElementById('setup-area');
+    const inviteInput = document.getElementById('invite-link');
+    
+    // Chat UI
+    const chatContainer = document.getElementById('chat-container');
+    const chatHistory = document.getElementById('chat-history');
+    const chatInput = document.getElementById('chat-input');
+    const btnSend = document.getElementById('btn-send');
+
+    // --- PeerJS Setup ---
+    peer = new Peer({ debug: 1 });
+
+    peer.on('open', (id) => {
+      console.log('My Peer ID:', id);
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const hostId = urlParams.get('game');
+
+      if (hostId) {
+        // GUEST: Join existing game
+        statusEl.innerText = "Joining game...";
+        btnCreate.style.display = 'none';
+        
+        // Connect to Host
+        conn = peer.connect(hostId);
+        
+        conn.on('open', () => {
+          statusEl.innerText = "Connected! Waiting for start...";
+          chatContainer.style.display = 'block';
+          addChatMessage("System", "Connected to host.", "msg-system");
+          
+          conn.on('data', (data) => {
+            handleData(data);
+          });
+        });
+
+      } else {
+        // HOST: Ready to create
+        statusEl.innerText = "Ready.";
+        btnCreate.disabled = false;
+        
+        // Initialize an empty/view-only board for visuals
+        initBoard('white', false); 
+      }
+    });
+
+    peer.on('connection', (connection) => {
+      // Host receives connection
+      if (conn && conn.open) {
+        connection.close();
+        return;
+      }
+      conn = connection;
+      
+      conn.on('open', () => {
+        chatContainer.style.display = 'block';
+        addChatMessage("System", "Opponent connected.", "msg-system");
+        
+        // Start Game immediately
+        startGame('white');
+        
+        // Signal Guest to start as Black
+        setTimeout(() => {
+            conn.send({ type: 'start', color: 'black' });
+        }, 500);
+      });
+      
+      conn.on('data', (data) => {
+        handleData(data);
+      });
+      
+      conn.on('close', () => {
+        gameStatusEl.innerText = "Opponent Disconnected";
+        isGameActive = false;
+        addChatMessage("System", "Opponent disconnected.", "msg-system");
+        if(board) board.set({ viewOnly: true });
+      });
+    });
+
+    peer.on('error', (err) => {
+      console.error(err);
+      statusEl.innerText = "Connection Error. Try refreshing.";
+    });
+    
+    // --- Data Handler ---
+    function handleData(data) {
+      if (data.type === 'start') {
+        startGame(data.color);
+      } 
+      else if (data.type === 'move') {
+        handleRemoteMove(data);
+      }
+      else if (data.type === 'chat') {
+        addChatMessage("Opponent", data.text, "msg-opp");
+      }
+    }
+
+    // --- Chat Logic ---
+    function sendChat() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      
+      // Show locally
+      addChatMessage("Me", text, "msg-me");
+      
+      // Send over network
+      if (conn && conn.open) {
+        conn.send({ type: 'chat', text: text });
+      }
+      
+      chatInput.value = "";
+    }
+    
+    function addChatMessage(sender, text, className) {
+      const div = document.createElement('div');
+      div.className = className;
+      div.innerHTML = `<strong>${sender}:</strong> ${escapeHtml(text)}`;
+      chatHistory.appendChild(div);
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+    
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    btnSend.addEventListener('click', sendChat);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendChat();
+    });
+
+    // --- Game Logic ---
+
+    function startGame(color) {
+      myColor = color;
+      isGameActive = true;
+      game.reset();
+
+      // Switch UI
+      setupArea.style.display = 'none';
+      inviteArea.style.display = 'none';
+      gameStatusEl.style.display = 'block';
+
+      initBoard(color, true);
+      updateStatus();
+    }
+
+    function handleRemoteMove(data) {
+      // Apply move locally
+      game.move({ from: data.from, to: data.to, promotion: 'q' });
+      board.move(data.from, data.to);
+      updateStatus();
+      updateBoardUI();
+    }
+
+    function onUserMove(orig, dest) {
+      if (!isGameActive) return;
+      
+      // Validate move in engine
+      const move = game.move({ from: orig, to: dest, promotion: 'q' });
+      if (!move) return; // Invalid move logic handled by Chessground mostly
+
+      // Send to peer
+      if (conn && conn.open) {
+        conn.send({ type: 'move', from: orig, to: dest });
+      }
+
+      updateStatus();
+      updateBoardUI();
+    }
+
+    // --- Board Helpers ---
+
+    function updateStatus() {
+      if (game.game_over()) {
+        if (game.in_checkmate()) {
+            const winner = game.turn() === 'w' ? 'Black' : 'White';
+            gameStatusEl.innerHTML = `Checkmate! <span class="highlight">${winner} Wins!</span>`;
+        } else if (game.in_draw()) {
+            gameStatusEl.innerText = "Game Over: Draw";
+        } else {
+            gameStatusEl.innerText = "Game Over";
+        }
+        return;
+      }
+
+      const isMyTurn = (game.turn() === myColor.charAt(0));
+      if (isMyTurn) {
+        gameStatusEl.innerHTML = `<span class="highlight">YOUR TURN (${myColor})</span>`;
+      } else {
+        gameStatusEl.innerText = `Opponent's Turn (${myColor === 'white' ? 'black' : 'white'})...`;
+      }
+    }
+
+    function getLegalMoves() {
+      const dests = new Map();
+      ['a','b','c','d','e','f','g','h'].forEach(f => {
+        for(let i=1; i<=8; i++) {
+          const sq = f+i;
+          const moves = game.moves({ square: sq, verbose: true });
+          if(moves.length) dests.set(sq, moves.map(m=>m.to));
+        }
+      });
+      return dests;
+    }
+
+    function initBoard(orientation, interactive) {
+      if(board) board.destroy();
+      
+      const config = {
+        fen: 'start',
+        orientation: orientation,
+        movable: {
+          color: interactive ? orientation : null,
+          free: false,
+          dests: interactive ? getLegalMoves() : new Map(),
+          events: { after: onUserMove }
+        },
+        draggable: {
+          showGhost: true
+        }
+      };
+      
+      board = Chessground(document.getElementById('board'), config);
+      updateBoardUI();
+    }
+
+    function updateBoardUI() {
+      if (!board) return;
+      const isMyTurn = (game.turn() === myColor.charAt(0));
+      
+      board.set({
+        fen: game.fen(),
+        turnColor: isMyTurn ? myColor : 'grey',
+        movable: {
+          color: isMyTurn ? myColor : null,
+          dests: isMyTurn ? getLegalMoves() : new Map()
+        }
+      });
+    }
+
+    // --- Button Handlers ---
+    btnCreate.addEventListener('click', () => {
+      // Create Invite Link
+      const link = window.location.href.split('?')[0] + "?game=" + peer.id;
+      inviteInput.value = link;
+      
+      btnCreate.style.display = 'none';
+      inviteArea.style.display = 'block';
+      statusEl.style.display = 'none';
+    });
+
+  </script>
+</body>
+</html>

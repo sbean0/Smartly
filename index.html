@@ -1,76 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Smartly Academy — Launching Soon</title>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Academy — Cognitive Training</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
+      margin: 0; padding: 0; box-sizing: border-box;
       font-family: 'Inter', sans-serif;
-      background: #f8f9fa;
-      color: #2d3748;
-      line-height: 1.7;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 2rem;
+      background: #121212;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px; margin: 0 auto; padding: 4rem 2rem;
       text-align: center;
     }
-    .container { max-width: 720px; width: 100%; }
     h1 {
-      font-family: 'Libre Baskerville', serif;
-      font-size: 2.8rem;
-      color: #1a365d;
-      margin-bottom: 1rem;
-      letter-spacing: -0.5px;
+      font-size: 3rem; margin-bottom: 1rem;
+      background: linear-gradient(to right, #fff, #888);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .subtitle {
-      font-size: 1.2rem;
-      color: #4a5568;
-      margin-bottom: 2.5rem;
-      font-weight: 500;
+      color: #4ade80; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 2rem;
     }
-    .status {
-      font-size: 1.1rem;
-      color: #2b6cb0;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-    .footer {
-      font-size: 0.9rem;
-      color: #718096;
+    p { color: #bbb; max-width: 600px; margin: 0 auto 2rem; }
+    
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;
       margin-top: 3rem;
     }
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 1.5rem;
-      background: #2b6cb0;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 2rem;
-      font-weight: bold;
+    .card {
+      background: #1e1e1e; padding: 2rem; border-radius: 12px;
+      border: 1px solid #333; transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px); border-color: #4ade80;
+    }
+    .card h2 { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .card p { font-size: 0.95rem; color: #888; }
+    
+    .btn {
+      display: inline-block;
+      background: #4ade80; color: #000;
+      padding: 0.8rem 1.5rem; border-radius: 50px;
+      text-decoration: none; font-weight: 600;
+      margin-top: 1rem;
+    }
+    .btn:hover { background: #22c55e; }
+
+    footer {
+      margin-top: 4rem; color: #666; font-size: 0.8rem;
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <!div class="logo"></div>
-    <h1>Smartly Academy</h1>
-    <p class="subtitle">A new standard in online education — launching soon.</p>
-    <p class="status">Platform under development</p>
 
-    <div class="footer">
-      © 2025 Smartly Academy. All rights reserved.<br>
-      <small>Preparing the future of learning.</small>
+  <div class="container">
+    <p class="subtitle">Smartly Academy</p>
+    <h1>Welcome to the Gym for Your Mind</h1>
+    <p>
+      Cognitive decline isn't inevitable. It's a choice. Train your brain with proven mental exercises designed to enhance focus, memory, and fluid intelligence.
+    </p>
+
+    <div class="grid">
+      <!-- Module 1: Chess -->
+      <div class="card">
+        <h2>♟️ Strategic Thinking</h2>
+        <p>Master the 1,500-year-old game of kings. Enhance pattern recognition and foresight.</p>
+        <a href="chess-landing.html" class="btn">Start Module</a>
+      </div>
+
+      <!-- Module 2: Piano -->
+      <div class="card">
+        <h2>🎹 Musical Cognition</h2>
+        <p>Train your ear and dexterity with an AI coach. Practice solo or with a friend.</p>
+        <a href="piano-landing.html" class="btn">Start Module</a>
+      </div>
+
+      <!-- Module 3: Placeholder -->
+      <div class="card" style="opacity: 0.6;">
+        <h2>🔢 Quantitative Reasoning</h2>
+        <p>Coming Soon. Fast-paced mental math drills to sharpen working memory.</p>
+        <span class="btn" style="background: #333; color: #666; cursor: default;">Locked</span>
+      </div>
     </div>
+
+    <footer>
+      &copy; 2026 Smartly Academy. All rights reserved.
+    </footer>
   </div>
+
 </body>
 </html>
