@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Rhythm Typer Prototype</title>
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    h1 { margin-bottom: 2rem; color: #4ade80; }
+    
+    .keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center; /* Center rows */
+    }
+    .row {
+      display: flex;
+      gap: 5px;
+    }
+    .key {
+      width: 50px; /* Slightly smaller to fit */
+      height: 50px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #666;
+      transition: all 0.1s;
+      user-select: none;
+    }
+    
+    .key.active {
+      border-color: #4ade80;
+      background: #4ade80;
+      color: #000;
+      transform: scale(0.95);
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+    }
+    
+    .log {
+      margin-top: 2rem;
+      color: #888;
+      font-size: 0.9rem;
+      min-height: 1.5em;
+    }
+    
+    /* Ripple Effect Container */
+    #ripples {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(74, 222, 128, 0.2);
+      transform: translate(-50%, -50%);
+      animation: ripple-anim 0.6s ease-out forwards;
+    }
+    @keyframes ripple-anim {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 300px; height: 300px; opacity: 0; }
+    }
+    
+    .main-container {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+    .right-panel {
+      width: 250px;
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      height: 400px;
+      overflow-y: auto;
+    }
+    .sequence-box {
+      font-family: monospace;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .note-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      margin: 2px;
+      background: #333;
+      border-radius: 4px;
+      color: #ccc;
+      transition: all 0.1s;
+    }
+    .note-badge.playing {
+      background: #fff;
+      color: #000;
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      z-index: 10;
+      position: relative;
+    }
+    /* Additions for new UI */
+    .controls {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .note-wrapper {
+      display: inline-block;
+      margin: 2px;
+    }
+    .chord-group {
+      display: inline-flex;
+      background: #444;
+      border: 1px solid #666;
+      border-radius: 6px;
+      padding: 2px;
+    }
+    .chord-group .note-badge {
+      background: transparent;
+      margin: 0 2px;
+      color: #fff;
+    }
+    .rest-badge {
+      display: inline-block;
+      color: #555;
+      margin: 0 1px;
+      font-weight: bold;
+    }
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    #recordBtn {
+      background: #ef4444; /* Red */
+      color: white;
+    }
+    #recordBtn.recording {
+      animation: pulse 1.5s infinite;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+    #playBtn {
+      background: #3b82f6; /* Blue */
+      color: white;
+    }
+    #playBtn:disabled, #saveBtn:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+    #saveBtn {
+      background: #10b981; /* Green */
+      color: white;
+    }
+    #loadBtn {
+      background: #8b5cf6; /* Purple */
+      color: white;
+    }
+    
+    .spacebar-container {
+      margin-top: 10px;
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: center;
+    }
+    .spacebar {
+      width: 300px;
+      height: 50px;
+      font-size: 1rem;
+    }
+    
+    /* Dialog Styles */
+    dialog {
+      background: #222;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      max-width: 400px;
+    }
+    dialog::backdrop {
+      background: rgba(0,0,0,0.7);
+    }
+    dialog h3 { margin-top: 0; margin-bottom: 1rem; color: #10b981; }
+    .field { margin-bottom: 1rem; }
+    .field input[type="text"] {
+      width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #444; background: #333; color: #fff;
+    }
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+    
+    /* Mobile Styles */
+    #mobile-warning {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #121212;
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    @media (max-width: 800px) or (pointer: coarse) {
+      #mobile-warning { display: flex; }
+      .main-container, .controls, .log, h1 { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Type to Play 🎹</h1>
+  
+  <div class="controls">
+    <button id="recordBtn">● Record</button>
+    <button id="playBtn" disabled>▶ Playback</button>
+    <button id="saveBtn" disabled>💾 Save</button>
+    <button id="loadBtn">📂 Load</button>
+    <input type="file" id="fileInput" accept=".txt" style="display:none">
+    <span id="status">Ready</span>
+  </div>
+
+  <div class="main-container">
+    <div class="left-panel">
+      <div class="keyboard" id="keyboard">
+        <!-- Keys generated by JS -->
+      </div>
+      <!-- Spacebar below -->
+      <div class="spacebar-container">
+        <div class="key spacebar" id="key-SPACE">SPACE (Kick)</div>
+      </div>
+    </div>
+    
+    <div class="right-panel">
+      <h3>Recorded Sequence</h3>
+      <div id="sequence-display" class="sequence-box">
+        <span style="color:#666">Notes will appear here...</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="log" id="log">Press keys (0-9, A-Z, ,./;' Space)...</div>
+  <div id="ripples"></div>
+
+  <!-- Mobile Warning -->
+  <div id="mobile-warning">
+    <h1>📱 Mobile Version Coming Soon</h1>
+    <p>Please visit on a desktop computer with a keyboard.</p>
+  </div>
+
+  <!-- Save Dialog -->
+  <dialog id="saveDialog">
+    <h3>Save Your Session</h3>
+    <div class="field">
+      <label>Filename:</label>
+      <input type="text" id="filenameInput" value="smartly-jam" placeholder="filename">
+    </div>
+    <div class="field checkbox-group">
+      <label><input type="checkbox" id="checkAudio" checked> Download Audio (.webm)</label>
+      <label><input type="checkbox" id="checkSequence" checked> Download Sequence (.txt)</label>
+    </div>
+    <div class="actions">
+      <button id="cancelSaveBtn" style="background:#555">Cancel</button>
+      <button id="confirmSaveBtn" style="background:#10b981">Download</button>
+    </div>
+  </dialog>
+
+  <script>
+    // --- Audio Context ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
+    
+    // Master Gain for Routing to Recorder
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.8; // Avoid clipping
+    
+    // Destination 1: Speakers
+    masterGain.connect(ctx.destination);
+    
+    // Destination 2: Recorder Stream
+    const destStream = ctx.createMediaStreamDestination();
+    masterGain.connect(destStream);
+    
+    const mediaRecorder = new MediaRecorder(destStream.stream);
+    let audioChunks = [];
+
+    // Synth: Simple Pluck
+    function playNote(freq) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'triangle'; 
+      osc.frequency.value = freq;
+      
+      osc.connect(gain);
+      gain.connect(masterGain); 
+      
+      const now = ctx.currentTime;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.01); 
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5); 
+      
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
+    
+    // Synth: Kick Drum (Spacebar) - Boosted
+    function playKick() {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.frequency.value = 160;
+      osc.connect(gain);
+      gain.connect(masterGain); 
+      
+      const now = ctx.currentTime;
+      osc.frequency.exponentialRampToValueAtTime(0.01, now + 0.4);
+      gain.gain.setValueAtTime(1.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
+
+    // --- Key Mapping ---
+    // Pentatonic Scale extended
+    const scale = [
+      130.81, 146.83, 164.81, 196.00, 220.00, // Low C3-A3
+      261.63, 293.66, 329.63, 392.00, 440.00, // Mid C4-A4
+      523.25, 587.33, 659.25, 783.99, 880.00, // High C5-A5
+      1046.50, 1174.66, 1318.51, 1567.98, 1760.00, // Very High
+      2093.00, 2349.32, 2637.02, 2793.83, 3135.96 // NEW: C7, D7, E7, F7, G7
+    ];
+    
+    // Layout: Rows for keyboard UI
+    const rows = [
+      "1234567890".split(""),
+      "QWERTYUIOP".split(""),
+      "ASDFGHJKL;'".split(""), // Added ;'
+      "ZXCVBNM,./".split("")
+    ];
+    
+    // Flattened array for mapping index to scale
+    const allKeys = [].concat(...rows);
+    const keyMap = {};
+    
+    const keyboardEl = document.getElementById('keyboard');
+    const sequenceEl = document.getElementById('sequence-display');
+    
+    // Render Keyboard (Row by Row)
+    rows.forEach((rowKeys, rowIndex) => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'row';
+      
+      // Indentation for realism (optional, but nice)
+      if (rowIndex === 2) rowDiv.style.paddingLeft = '15px';
+      if (rowIndex === 3) rowDiv.style.paddingLeft = '30px';
+
+      rowKeys.forEach((char) => {
+        const div = document.createElement('div');
+        div.className = 'key';
+        div.id = 'key-' + char;
+        div.textContent = char;
+        rowDiv.appendChild(div);
+        
+        // Find index in flat list to get scale note
+        // Note: allKeys order is correct based on row definitions
+        const flatIndex = allKeys.indexOf(char);
+        keyMap[char] = scale[flatIndex % scale.length];
+      });
+      
+      keyboardEl.appendChild(rowDiv);
+    });
+
+    // --- Recorder Logic ---
+    let isRecording = false;
+    let recordedSequence = []; 
+    let recordStartTime = 0;
+    
+    // Chord Grouping Logic
+    let lastNoteTime = 0;
+    let currentChordContainer = null;
+    const CHORD_THRESHOLD_MS = 60; // Notes within 60ms are a chord
+    const REST_THRESHOLD_MS = 250; // Every 250ms of silence adds a 'rest' marker
+    
+    const recordBtn = document.getElementById('recordBtn');
+    const playBtn = document.getElementById('playBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const statusEl = document.getElementById('status');
+    
+    // Dialog Elements
+    const saveDialog = document.getElementById('saveDialog');
+    const filenameInput = document.getElementById('filenameInput');
+    const checkAudio = document.getElementById('checkAudio');
+    const checkSequence = document.getElementById('checkSequence');
+    const cancelSaveBtn = document.getElementById('cancelSaveBtn');
+    const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+    
+    function resetSequenceDisplay() {
+      sequenceEl.innerHTML = '';
+      lastNoteTime = 0;
+      currentChordContainer = null;
+    }
+    
+    function addToSequenceDisplay(note, noteIndex) {
+      const now = Date.now();
+      
+      // If this is the first note, set lastNoteTime to now so we don't calculate a huge rest
+      if (lastNoteTime === 0) {
+        lastNoteTime = now;
+      }
+      
+      const delta = now - lastNoteTime;
+      
+      // Check for rests BEFORE adding the new note
+      // Only if not in a chord group (because chords have tiny deltas)
+      if (delta >= REST_THRESHOLD_MS) {
+        // Calculate number of rest units
+        const numRests = Math.floor(delta / REST_THRESHOLD_MS);
+        
+        // Close previous chord group if exists (rests break chords obviously)
+        currentChordContainer = null;
+        
+        // Add rest markers
+        // Cap at maybe 20 to avoid massive spam if idle for long time
+        const safeRests = Math.min(numRests, 20);
+        
+        for (let i = 0; i < safeRests; i++) {
+          const rest = document.createElement('span');
+          rest.className = 'rest-badge';
+          rest.textContent = '·'; // Middle dot
+          sequenceEl.appendChild(rest);
+        }
+      }
+      
+      // Create Note Badge
+      const span = document.createElement('span');
+      span.className = 'note-badge';
+      span.textContent = note;
+      
+      // Store the index of the note in the recorded sequence
+      span.dataset.index = noteIndex;
+      
+      if (delta < CHORD_THRESHOLD_MS && currentChordContainer) {
+        // Add to existing chord group
+        currentChordContainer.appendChild(span);
+        currentChordContainer.classList.add('chord-group'); 
+      } else {
+        // Start new note container
+        currentChordContainer = document.createElement('div');
+        currentChordContainer.className = 'note-wrapper';
+        currentChordContainer.appendChild(span);
+        sequenceEl.appendChild(currentChordContainer);
+      }
+      
+      lastNoteTime = now;
+      
+      // Auto-scroll
+      sequenceEl.scrollTop = sequenceEl.scrollHeight;
+    }
+    
+    // --- Media Recorder Handlers ---
+    mediaRecorder.ondataavailable = (e) => {
+      audioChunks.push(e.data);
+    };
+
+    recordBtn.addEventListener('click', () => {
+      if (!isRecording) {
+        // Start Recording
+        isRecording = true;
+        recordedSequence = [];
+        audioChunks = []; // Clear old audio
+        
+        resetSequenceDisplay();
+        recordStartTime = Date.now();
+        lastNoteTime = 0; 
+        
+        if (ctx.state === 'suspended') ctx.resume();
+        mediaRecorder.start();
+        
+        recordBtn.textContent = "■ Stop";
+        recordBtn.classList.add('recording');
+        statusEl.textContent = "Recording...";
+        playBtn.disabled = true;
+        saveBtn.disabled = true;
+      } else {
+        // Stop Recording
+        isRecording = false;
+        mediaRecorder.stop();
+        
+        recordBtn.textContent = "● Record";
+        recordBtn.classList.remove('recording');
+        statusEl.textContent = `Saved ${recordedSequence.length} notes.`;
+        if (recordedSequence.length > 0) {
+          playBtn.disabled = false;
+          saveBtn.disabled = false;
+        }
+      }
+    });
+    
+    // --- Save Logic ---
+    saveBtn.addEventListener('click', () => {
+       if (audioChunks.length === 0 && recordedSequence.length === 0) return;
+       saveDialog.showModal();
+    });
+    
+    cancelSaveBtn.addEventListener('click', () => {
+      saveDialog.close();
+    });
+    
+    confirmSaveBtn.addEventListener('click', () => {
+       const filename = filenameInput.value || "smartly-jam";
+       
+       // 1. Download Audio (WebM)
+       if (checkAudio.checked && audioChunks.length > 0) {
+         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+         const audioUrl = URL.createObjectURL(audioBlob);
+         const aAudio = document.createElement('a');
+         aAudio.href = audioUrl;
+         aAudio.download = `${filename}.webm`;
+         aAudio.click();
+       }
+       
+       // 2. Download Sequence (TXT)
+       if (checkSequence.checked && recordedSequence.length > 0) {
+         let textContent = `Smartly Rhythm Session: ${filename}\nDate: ${new Date().toLocaleString()}\n\nTime (ms) | Note\n----------------\n`;
+         
+         recordedSequence.forEach(item => {
+           textContent += `${String(item.time).padEnd(9)} | ${item.key}\n`;
+         });
+         
+         const textBlob = new Blob([textContent], { type: 'text/plain' });
+         const textUrl = URL.createObjectURL(textBlob);
+         const aText = document.createElement('a');
+         aText.href = textUrl;
+         aText.download = `${filename}.txt`;
+         aText.click();
+       }
+       
+       saveDialog.close();
+    });
+    
+    // --- Load Logic ---
+    loadBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        const text = event.target.result;
+        
+        // Reset state
+        recordedSequence = [];
+        sequenceEl.innerHTML = '';
+        currentChordContainer = null;
+        
+        const lines = text.split('\n');
+        let loadedNotes = [];
+        
+        // Parsing Loop
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line || line.startsWith('Smartly') || line.startsWith('Date:') || line.startsWith('Time') || line.startsWith('---')) continue;
+          
+          const parts = line.split('|');
+          if (parts.length >= 2) {
+             const t = parseInt(parts[0].trim());
+             const k = parts[1].trim();
+             if (!isNaN(t) && k) {
+               loadedNotes.push({ time: t, key: k });
+             }
+          }
+        }
+        
+        recordedSequence = loadedNotes;
+        
+        // Rendering Loop
+        loadedNotes.forEach((note, idx) => {
+            // Determine delta from previous note
+            let delta = 0;
+            if (idx > 0) {
+               delta = note.time - loadedNotes[idx-1].time;
+            } else {
+               // First note usually starts at 0 or small offset
+               delta = note.time; 
+            }
+            
+            // Add Rests
+            if (delta >= REST_THRESHOLD_MS) {
+                const numRests = Math.floor(delta / REST_THRESHOLD_MS);
+                const safeRests = Math.min(numRests, 10); // Cap at 10 for loading view
+                
+                // Close previous chord
+                currentChordContainer = null;
+                
+                for(let r=0; r<safeRests; r++) {
+                    const rest = document.createElement('span');
+                    rest.className = 'rest-badge';
+                    rest.textContent = '·';
+                    sequenceEl.appendChild(rest);
+                }
+            }
+            
+            // Create Badge
+            const span = document.createElement('span');
+            span.className = 'note-badge';
+            span.textContent = note.key;
+            span.dataset.index = idx;
+            
+            // Chord Grouping
+            if (delta < CHORD_THRESHOLD_MS && currentChordContainer && idx > 0) {
+                currentChordContainer.appendChild(span);
+                currentChordContainer.classList.add('chord-group');
+            } else {
+                currentChordContainer = document.createElement('div');
+                currentChordContainer.className = 'note-wrapper';
+                currentChordContainer.appendChild(span);
+                sequenceEl.appendChild(currentChordContainer);
+            }
+        });
+        
+        statusEl.textContent = `Loaded ${loadedNotes.length} notes.`;
+        if (loadedNotes.length > 0) {
+          playBtn.disabled = false;
+        }
+      };
+      
+      reader.readAsText(file);
+      fileInput.value = ''; // Allow re-select
+    });
+    
+    playBtn.addEventListener('click', () => {
+      if (recordedSequence.length === 0) return;
+      statusEl.textContent = "Playing...";
+      playBtn.disabled = true;
+      recordBtn.disabled = true;
+      
+      // Remove any leftover 'playing' classes from previous runs
+      document.querySelectorAll('.note-badge.playing').forEach(el => el.classList.remove('playing'));
+      
+      recordedSequence.forEach((note, i) => {
+        setTimeout(() => {
+          triggerNote(note.key, false); // false = don't record playback!
+          
+          // Visual Feedback: Highlight current note
+          const el = document.querySelector(`.note-badge[data-index="${i}"]`);
+          if (el) {
+            el.classList.add('playing');
+            // Auto-scroll to playing element
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Remove highlight after short duration
+            setTimeout(() => el.classList.remove('playing'), 200);
+          }
+          
+          if (i === recordedSequence.length - 1) {
+             setTimeout(() => {
+               statusEl.textContent = "Ready";
+               playBtn.disabled = false;
+               recordBtn.disabled = false;
+             }, 500);
+          }
+        }, note.time);
+      });
+    });
+
+    // --- Trigger Logic ---
+    function triggerNote(char, record = true) {
+      if (char === 'SPACE' || char === ' ') {
+        playKick();
+        visualize('SPACE');
+        if (record && isRecording) {
+           const idx = recordedSequence.length;
+           recordedSequence.push({ key: 'SPACE', time: Date.now() - recordStartTime });
+           addToSequenceDisplay('SPACE', idx);
+        }
+        return;
+      }
+      
+      // Handle punctuation keys correctly in ID
+      let safeId = char;
+      
+      const freq = keyMap[char];
+      if (freq) {
+        if (ctx.state === 'suspended') ctx.resume();
+        playNote(freq);
+        visualize(char);
+        
+        if (record && isRecording) {
+           const idx = recordedSequence.length;
+           recordedSequence.push({ key: char, time: Date.now() - recordStartTime });
+           addToSequenceDisplay(char, idx);
+        }
+      }
+    }
+
+    function visualize(char) {
+      // Escape special chars for ID selector if needed
+      // But we set ID manually above without special escaping
+      // Let's just use getElementById directly
+      const keyEl = document.getElementById('key-' + char);
+      if (keyEl) {
+        keyEl.classList.add('active');
+        setTimeout(() => keyEl.classList.remove('active'), 150);
+      }
+      document.getElementById('log').textContent = `Note: ${char}`;
+    }
+
+    // --- Input Handling ---
+    document.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      
+      let char = e.key.toUpperCase();
+      
+      // Handle Space specifically to prevent scrolling/stopping
+      if (e.code === 'Space') {
+        e.preventDefault();
+        char = 'SPACE';
+      }
+      
+      // Map keys to our layout
+      triggerNote(char, true);
+    });
+    
+  </script>
+</body>
+</html>
