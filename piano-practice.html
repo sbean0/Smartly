@@ -171,6 +171,23 @@
     .field { margin-bottom: 1rem; }
     .field input[type="text"] { width: 100%; padding: 0.5rem; background: #333; border: 1px solid #444; color: #fff; }
     
+    /* Audio Unlock */
+    #audio-unlock {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      display: flex; justify-content: center; align-items: center;
+    }
+    #unlockBtn {
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      background: #4ade80;
+      color: #000;
+      border: none; border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+    }
+    
     #log { margin-top: 1rem; color: #888; }
   </style>
 </head>
@@ -207,6 +224,11 @@
   </div>
   
   <div class="log" id="log">Click keys or type (A-K, L, ; for White | W-U, I, O for Black)</div>
+
+  <!-- Audio Unlock Overlay -->
+  <div id="audio-unlock">
+    <button id="unlockBtn">▶ Click to Enable Audio</button>
+  </div>
 
   <!-- Save Dialog -->
   <dialog id="saveDialog">
@@ -334,6 +356,20 @@
     const fileInput = document.getElementById('fileInput');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const statusEl = document.getElementById('status');
+    const unlockOverlay = document.getElementById('audio-unlock');
+    const unlockBtn = document.getElementById('unlockBtn');
+    
+    // Unlock Audio Context (Mobile fix)
+    unlockBtn.addEventListener('click', () => {
+      if (ctx.state === 'suspended') ctx.resume();
+      unlockOverlay.style.display = 'none';
+    });
+    
+    // Also try to unlock on first touch anywhere if overlay missed
+    document.body.addEventListener('touchstart', function() {
+      if (ctx.state === 'suspended') ctx.resume();
+    }, { once: true });
+    
     let lastNoteTime = 0;
     
     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
