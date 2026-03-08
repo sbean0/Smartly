@@ -27,11 +27,15 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      width: 100%;
+      overflow: hidden; /* Prevent scroll */
     }
     
     .keys {
       position: relative;
       display: flex;
+      /* Ensure base size is preserved for scaling */
+      min-width: max-content; 
     }
     
     .key {
@@ -84,6 +88,30 @@
     }
     
     /* UI Layout */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 1.5rem;
+    }
+    .nav-link {
+      color: #ccc; text-decoration: none; font-size: 0.9rem;
+      padding: 0.5rem 1rem; border: 1px solid #333; border-radius: 4px;
+    }
+    .nav-link:hover { background: #333; color: #fff; }
+    
+    .nav-btn {
+      background: transparent; border: 1px solid #333; color: #ccc;
+      padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;
+    }
+    .nav-btn:hover { background: #333; color: #fff; }
+    
+    .banner {
+      background: #333; padding: 2px 8px; border-radius: 4px; color: #fbbf24; font-size: 0.8rem;
+    }
+
     .piano-wrapper {
       display: flex;
       gap: 20px;
@@ -197,6 +225,21 @@
       .piano-wrapper, .controls { display: none; }
     }
     
+    /* Mobile Scaling Force */
+    @media (max-width: 850px) {
+      .keys {
+        zoom: 0.65; /* Effective on mobile WebKit */
+        -moz-transform: scale(0.65);
+        -moz-transform-origin: 0 0;
+      }
+      .piano-container {
+        padding: 5px;
+        justify-content: flex-start; /* Align left to prevent centering cut-off */
+        overflow-x: auto; /* Safety scroll */
+      }
+      .history-bar { height: 160px; } /* Adjust history bar to match shrunk piano */
+    }
+    
     #unlockBtn {
       font-size: 1.5rem;
       padding: 1rem 2rem;
@@ -213,10 +256,16 @@
 <body>
 
   <h1>Smartly Piano 🎹</h1>
-  <p style="color: #888; font-size: 0.9rem; margin-top: -1.5rem; margin-bottom: 2rem;">
-    <span style="background: #333; padding: 2px 6px; border-radius: 4px; color: #fbbf24;">⚠ AI Coach Module Under Development</span>
-    &nbsp; • &nbsp; <a href="piano-landing.html" style="color: #4ade80; text-decoration: none;">Exit to Menu</a>
-  </p>
+  
+  <div class="top-bar">
+    <a href="piano-landing.html" class="nav-link">← Exit</a>
+    <span class="banner">⚠ AI Coach Module Under Development</span>
+    <button id="fullscreenBtn" class="nav-btn">⛶ Full Screen</button>
+  </div>
+  
+  <div id="log" style="margin-bottom: 1rem; color: #4ade80; font-family: monospace;">
+    Click keys or type (A-K, L, ; for White | W-U, I, O for Black)
+  </div>
   
   <div class="controls">
     <button id="recordBtn">● Record</button>
@@ -242,8 +291,6 @@
     </div>
   </div>
   
-  <div class="log" id="log">Click keys or type (A-K, L, ; for White | W-U, I, O for Black)</div>
-
   <!-- Audio Unlock Overlay -->
   <div id="audio-unlock">
     <button id="unlockBtn">▶ Click to Enable Audio</button>
@@ -369,6 +416,28 @@
       el.addEventListener('touchstart', handleTrigger, { passive: false });
     });
 
+    // --- Responsive Scaling ---
+    function resizePiano() {
+      const containerWidth = document.querySelector('.piano-container').clientWidth;
+      const pianoWidth = whiteKeyCount * 60; // 60px per white key
+      
+      // If piano is wider than container, scale it down
+      if (pianoWidth > containerWidth) {
+        const scale = containerWidth / pianoWidth;
+        pianoEl.style.transform = `scale(${scale})`;
+        pianoEl.style.transformOrigin = 'left top';
+        // Adjust container height because scaling leaves empty space
+        pianoEl.style.marginBottom = `-${(1 - scale) * 200}px`; 
+      } else {
+        pianoEl.style.transform = 'scale(1)';
+        pianoEl.style.marginBottom = '0';
+      }
+    }
+    
+    window.addEventListener('resize', resizePiano);
+    // Call once after rendering
+    setTimeout(resizePiano, 100);
+
     // --- Recording Logic ---
     let isRecording = false;
     let recordedSequence = [];
@@ -381,10 +450,24 @@
     const fileInput = document.getElementById('fileInput');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const statusEl = document.getElementById('status');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
     const unlockOverlay = document.getElementById('audio-unlock');
     const unlockBtn = document.getElementById('unlockBtn');
     
-    // Unlock Audio Context (Mobile fix)
+    // Fullscreen Toggle
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        fullscreenBtn.textContent = "⛶ Exit Full";
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+          fullscreenBtn.textContent = "⛶ Full Screen";
+        }
+      }
+    });
+    
+    // Audio Unlock (Mobile)
     unlockBtn.addEventListener('click', () => {
       if (ctx.state === 'suspended') ctx.resume();
       unlockOverlay.style.display = 'none';
@@ -396,6 +479,8 @@
     }, { once: true });
     
     let lastNoteTime = 0;
+    const CHORD_THRESHOLD = 70; // ms
+    let currentHistoryGroup = null;
     
     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
 
@@ -403,35 +488,54 @@
       if (ctx.state === 'suspended') ctx.resume();
       
       const now = Date.now();
+      const delta = now - lastNoteTime;
       
-      // Calculate Rest
-      if (lastNoteTime > 0) {
-        const delta = now - lastNoteTime;
-        if (delta > 800) { // 800ms gap = Rest visual
+      // Calculate Rest (Visual Spacer)
+      if (lastNoteTime > 0 && delta > 800) { 
            const restEl = document.createElement('div');
            restEl.className = 'history-rest';
            historyEl.prepend(restEl);
-        }
+           currentHistoryGroup = null; // Reset chord grouping on rest
       }
-      lastNoteTime = now;
       
       playTone(noteObj.freq);
       
-      // Visual
+      // Visual Key
       if (noteObj.el) {
         noteObj.el.classList.add('active');
         setTimeout(() => noteObj.el.classList.remove('active'), 200);
       }
       
-      // History Bar
-      const histItem = document.createElement('div');
-      histItem.className = 'history-note';
-      histItem.textContent = noteObj.note;
-      historyEl.prepend(histItem); 
+      // History Bar Logic
+      // Check for Chord
+      if (delta < CHORD_THRESHOLD && currentHistoryGroup) {
+          // Append to existing group
+          const span = document.createElement('span');
+          span.style.marginLeft = "6px";
+          span.textContent = noteObj.note;
+          currentHistoryGroup.appendChild(span);
+      } else {
+          // New Group/Note
+          const histItem = document.createElement('div');
+          histItem.className = 'history-note';
+          // Use a flex container for the note items
+          histItem.style.display = "flex";
+          histItem.style.justifyContent = "center";
+          histItem.style.width = "100%";
+          
+          const span = document.createElement('span');
+          span.textContent = noteObj.note;
+          histItem.appendChild(span);
+          
+          historyEl.prepend(histItem);
+          currentHistoryGroup = histItem;
+      }
       
-      if (historyEl.children.length > 20) {
+      if (historyEl.children.length > 30) {
         historyEl.lastElementChild.remove();
       }
+      
+      lastNoteTime = now;
       
       document.getElementById('log').textContent = `Playing: ${noteObj.note} (${noteObj.freq}Hz)`;
       

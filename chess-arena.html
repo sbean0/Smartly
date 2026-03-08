@@ -101,7 +101,10 @@
   <!-- Invite Friend UI -->
   <div id="invite-area" class="panel">
     <p style="margin:0; font-size:0.9rem; color:#ccc;">Send this link to your friend:</p>
-    <input type="text" id="invite-link" class="link-box" readonly onclick="this.select()">
+    <div style="display:flex; gap:5px;">
+        <input type="text" id="invite-link" class="link-box" readonly onclick="this.select()">
+        <button id="btn-copy-link" class="btn btn-secondary" style="width:auto; margin-top:0.5rem; padding:0.5rem 1rem;">Copy</button>
+    </div>
     <div style="margin-top:0.5rem; color:#eab308; font-size:0.8rem;">Waiting for opponent...</div>
     <button id="btn-cancel-invite" class="btn btn-secondary" style="margin-top:1rem;">Cancel</button>
   </div>
@@ -109,6 +112,11 @@
   <!-- Game UI (Active Game) -->
   <div id="game-ui" class="panel">
     <div id="game-status" class="status-text">Good luck!</div>
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:0.5rem;">
+        <label style="color:#888; font-size:0.8rem; display:flex; align-items:center;">
+            <input type="checkbox" id="check-sound" checked> Sound
+        </label>
+    </div>
     <div id="coach-box" class="coach-msg"></div>
     <div id="coach-controls" style="display:none; margin-top:0.5rem;">
         <button id="btn-hint" class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem;">💡 Ask Coach for Hint</button>
@@ -143,10 +151,46 @@
     const btnPlayBot = document.getElementById('btn-play-bot');
     const btnPlayFriend = document.getElementById('btn-play-friend');
     const inviteInput = document.getElementById('invite-link');
+    const btnCopyLink = document.getElementById('btn-copy-link');
     const btnNewGame = document.getElementById('btn-new-game');
     const btnCancelInvite = document.getElementById('btn-cancel-invite');
     const networkStatus = document.getElementById('network-status');
     const btnHint = document.getElementById('btn-hint');
+    const checkSound = document.getElementById('check-sound');
+    
+    // --- Audio System (Synth) ---
+    // Use Web Audio API for reliable, self-contained sound
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
+    
+    function playSound(isCapture) {
+        if(!checkSound.checked) return;
+        if(ctx.state === 'suspended') ctx.resume();
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        if (isCapture) {
+            // Capture: Sharp high-pitch "Crack"
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.5, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            osc.type = 'square';
+        } else {
+            // Move: Soft wooden "Thud"
+            osc.frequency.setValueAtTime(200, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            osc.type = 'triangle';
+        }
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+    }
 
     // --- Initialization ---
     peer = new Peer({ debug: 1 });
@@ -172,16 +216,37 @@
 
     // --- Mode Selection ---
     btnPlayBot.addEventListener('click', () => {
+      // Unlock Audio on Start
+      if(ctx.state === 'suspended') ctx.resume();
+      
       initStockfish();
       startGame('bot', 'white');
     });
 
     btnPlayFriend.addEventListener('click', () => {
+      // Unlock Audio on Start
+      if(ctx.state === 'suspended') ctx.resume();
+      
       gameMode = 'p2p_waiting';
       const link = window.location.href.split('?')[0] + "?game=" + peer.id;
       inviteInput.value = link;
       setupMenu.classList.remove('show');
       inviteArea.classList.add('show');
+    });
+    
+    btnCopyLink.addEventListener('click', () => {
+        inviteInput.select();
+        navigator.clipboard.writeText(inviteInput.value).then(() => {
+            const originalText = btnCopyLink.innerText;
+            btnCopyLink.innerText = "Copied!";
+            btnCopyLink.style.background = "#22c55e";
+            btnCopyLink.style.color = "#000";
+            setTimeout(() => {
+                btnCopyLink.innerText = originalText;
+                btnCopyLink.style.background = "#333";
+                btnCopyLink.style.color = "#fff";
+            }, 2000);
+        });
     });
     
     btnCancelInvite.addEventListener('click', () => {
@@ -224,6 +289,8 @@
 
       const move = game.move({ from: orig, to: dest, promotion: 'q' });
       if (!move) return; 
+
+      playSound(move.captured); // Play Sound on User Move
 
       board.set({ fen: game.fen() });
       updateStatus();
@@ -279,11 +346,17 @@
                           // BOT MOVE
                           const from = bestMove.substring(0,2);
                           const to = bestMove.substring(2,4);
-                          game.move({ from: from, to: to, promotion: 'q' });
-                          board.move(from, to);
-                          updateStatus();
-                          updateBoardUI();
-                          board.set({ drawable: { shapes: [] } });
+                          
+                          // Delay the move to seem human (800ms)
+                          setTimeout(() => {
+                              const moveRes = game.move({ from: from, to: to, promotion: 'q' });
+                              if(moveRes) playSound(moveRes.captured); // Play Sound on Bot Move
+                              
+                              board.move(from, to);
+                              updateStatus();
+                              updateBoardUI();
+                              board.set({ drawable: { shapes: [] } });
+                          }, 800);
                       }
                   }
               }
