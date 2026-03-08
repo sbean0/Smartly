@@ -1,0 +1,11 @@
+# Internal & Private Files
+ROADMAP.md
+
+# Large Binary Files
+*.wav
+*.mp3
+*.flac
+
+# OS Files
+.DS_Store
+Thumbs.db
