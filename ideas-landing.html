@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smartly Ideas — Cognitive Training</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header / Hero */
+    header {
+      padding: 4rem 0;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(to right, #fff, #aaa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .subtitle {
+      font-size: 1.2rem;
+      color: #4ade80; /* Green accent */
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+    }
+    .hero-text {
+      font-size: 1.1rem;
+      color: #bbb;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 4rem;
+    }
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #fff;
+      border-left: 4px solid #4ade80;
+      padding-left: 1rem;
+    }
+    p {
+      margin-bottom: 1rem;
+      color: #ccc;
+    }
+
+    /* Benefits Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #333;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: #4ade80;
+    }
+    .card h3 {
+      color: #fff;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    /* CTA Button */
+    .cta-container {
+      text-align: center;
+      margin: 4rem 0;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: #4ade80;
+      color: #000;
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 50px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+    }
+    .btn-primary:hover {
+      background: #22c55e;
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid #222;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: #888;
+      text-decoration: none;
+    }
+    footer a:hover { color: #fff; }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <p class="subtitle">Cognitive Training Module</p>
+      <h1>Smartly Ideas</h1>
+      <p class="hero-text">
+        Your brain is a machine for having ideas, not holding them. 
+        Offload your cognitive load. Capture, organize, and refine your creativity.
+      </p>
+      
+      <div class="cta-container">
+        <a href="ideas-app.html" class="btn-primary">Launch App (Beta)</a>
+        <br><br>
+        <a href="index.html" style="color: #666; font-size: 0.9rem; text-decoration: none; border-bottom: 1px solid #444; padding-bottom: 2px;">← Back to Main</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Why Capture?</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>🧠 Cognitive Offloading</h3>
+          <p>Free up your working memory. Once an idea is safely stored, your brain stops looping on it, reducing anxiety and increasing focus.</p>
+        </div>
+        <div class="card">
+          <h3>🌱 Seed Storage</h3>
+          <p>Great projects start as fragments. Store your raw thoughts now so they can germinate into fully formed plans later.</p>
+        </div>
+        <div class="card">
+          <h3>🔒 Private & Secure</h3>
+          <p>Your ideas never leave your device. We use local browser storage for maximum privacy and zero latency.</p>
+        </div>
+        <div class="card">
+          <h3>🤖 AI Ready</h3>
+          <p>Structure your thoughts for the future. Soon, our AI Coach will help you brainstorm, expand, and execute on your saved ideas.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Features (Beta)</h2>
+      <ul style="list-style: none; padding: 0; max-width: 600px; margin: 0 auto; color: #ccc;">
+        <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+          <span style="color: #4ade80; position: absolute; left: 0; font-weight: bold;">✓</span>
+          <strong>Quick Capture:</strong> Instant load times. No login required. Just open and type.
+        </li>
+        <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+          <span style="color: #4ade80; position: absolute; left: 0; font-weight: bold;">✓</span>
+          <strong>Local Backup:</strong> Export your entire brain dump to a JSON file anytime.
+        </li>
+        <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+          <span style="color: #4ade80; position: absolute; left: 0; font-weight: bold;">✓</span>
+          <strong>Smart Categorization:</strong> Tag ideas as Business, Tech, Art, or Personal for easy filtering.
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Smartly Academy. <a href="index.html">Back to Main</a></p>
+    </footer>
+  </div>
+
+</body>
+</html>
