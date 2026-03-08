@@ -260,7 +260,6 @@
   <div class="top-bar">
     <a href="piano-landing.html" class="nav-link">← Exit</a>
     <span class="banner">⚠ AI Coach Module Under Development</span>
-    <button id="fullscreenBtn" class="nav-btn">⛶ Full Screen</button>
   </div>
   
   <div id="log" style="margin-bottom: 1rem; color: #4ade80; font-family: monospace;">
@@ -450,22 +449,8 @@
     const fileInput = document.getElementById('fileInput');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const statusEl = document.getElementById('status');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
     const unlockOverlay = document.getElementById('audio-unlock');
     const unlockBtn = document.getElementById('unlockBtn');
-    
-    // Fullscreen Toggle
-    fullscreenBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-        fullscreenBtn.textContent = "⛶ Exit Full";
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-          fullscreenBtn.textContent = "⛶ Full Screen";
-        }
-      }
-    });
     
     // Audio Unlock (Mobile)
     unlockBtn.addEventListener('click', () => {
