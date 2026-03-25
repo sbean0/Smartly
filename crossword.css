@@ -1,0 +1,111 @@
+const puzzle = {
+    size: 5,
+    grid: [
+        ['#', '#', '#', '#', '#'],
+        [' ', ' ', ' ', ' ', '#'],
+        [' ', ' ', ' ', ' ', '#'],
+        ['#', '#', '#', '#', '#'],
+        ['#', '#', '#', '#', '#']
+    ],
+    solution: [
+        ['#', '#', '#', '#', '#'],
+        [' ', ' ', 'H', ' ', '#'],
+        [' ', ' ', 'I', ' ', '#'],
+        ['#', '#', '#', '#', '#'],
+        ['#', '#', '#', '#', '#']
+    ],
+    clues: {
+        across: [
+            { num: 1, clue: "Greeting (2 letters, row 1 col 2-3)" }
+        ],
+        down: [
+            { num: 1, clue: "Letter H (1 letter, row 1 col 2)" }
+        ]
+    }
+};
+
+function initGrid() {
+    const gridTable = document.getElementById("grid");
+    const across = document.getElementById("across-clues");
+    const down = document.getElementById("down-clues");
+    gridTable.innerHTML = "";
+    across.innerHTML = "";
+    down.innerHTML = "";
+
+    // Create table
+    for (let i = 0; i < puzzle.size; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < puzzle.size; j++) {
+            const cell = document.createElement("td");
+            if (puzzle.grid[i][j] === '#') {
+                cell.className = "black";
+            } else {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.maxLength = 1;
+                input.dataset.row = i;
+                input.dataset.col = j;
+                input.addEventListener("input", (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                    if (e.target.value.length === 1) {
+                        // Move to next cell right
+                        const nextCol = parseInt(e.target.dataset.col) + 1;
+                        if (nextCol < puzzle.size) {
+                            const nextInput = gridTable.querySelector(`input[data-row="${i}"][data-col="${nextCol}"]`);
+                            if (nextInput && nextInput.parentNode.className !== 'black') nextInput.focus();
+                        }
+                    }
+                });
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '') {
+                        // Move left
+                        const prevCol = parseInt(e.target.dataset.col) - 1;
+                        if (prevCol >= 0) {
+                            const prevInput = gridTable.querySelector(`input[data-row="${i}"][data-col="${prevCol}"]`);
+                            if (prevInput) prevInput.focus();
+                        }
+                    }
+                });
+                cell.appendChild(input);
+            }
+            row.appendChild(cell);
+        }
+        gridTable.appendChild(row);
+    }
+
+    // Add clues
+    puzzle.clues.across.forEach(clue => {
+        const li = document.createElement("li");
+        li.textContent = `${clue.num}. ${clue.clue}`;
+        across.appendChild(li);
+    });
+    puzzle.clues.down.forEach(clue => {
+        const li = document.createElement("li");
+        li.textContent = `${clue.num}. ${clue.clue}`;
+        down.appendChild(li);
+    });
+
+    document.getElementById("check").addEventListener("click", checkSolution);
+    // Focus first input
+    const firstInput = gridTable.querySelector("input");
+    if (firstInput) firstInput.focus();
+}
+
+function checkSolution() {
+    const inputs = document.querySelectorAll("#grid input");
+    let correct = true;
+    inputs.forEach(input => {
+        const r = parseInt(input.dataset.row);
+        const c = parseInt(input.dataset.col);
+        const expected = puzzle.solution[r][c];
+        if (expected !== ' ' && input.value.toUpperCase() !== expected) {
+            correct = false;
+        }
+    });
+    const message = document.getElementById("message");
+    message.textContent = correct ? "Correct! 🎉" : "Try again.";
+    message.style.color = correct ? "green" : "red";
+}
+
+initGrid();
+EOF2
