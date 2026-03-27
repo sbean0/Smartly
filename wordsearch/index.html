@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Search — Smartly Academy</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">🏠 Home</a>
+        <a href="../wordsearch-landing.html">← Back to Module</a>
+    </div>
+    <h1>Word Search</h1>
+    <div class="main-content">
+        <div id="custom-words-section" style="text-align: center; margin-bottom: 20px;">
+            <label for="customWordsInput">Custom Words (comma-separated):</label><br>
+            <input type="text" id="customWordsInput" placeholder="e.g., AI, SMART, PUZZLE" style="width: 300px; padding: 5px; margin: 5px;">
+            <button onclick="generateCustomPuzzle()">Generate Custom Puzzle</button>
+            <button onclick="generateRandomPuzzle()">Random Puzzle</button>
+        </div>
+        <div id="grid-container"></div>
+        <div id="word-list"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

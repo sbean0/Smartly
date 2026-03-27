@@ -1,0 +1,160 @@
+body { 
+  font-family: 'Inter', sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+nav {
+  text-align: center;
+  padding: 10px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #4ade80;
+  font-weight: 600;
+}
+nav a:hover {
+  color: #22c55e;
+}
+h1 {
+  font-size: 2em;
+  text-align: center;
+  margin: 20px 0;
+  color: #fff;
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+#grid-container { 
+  display: grid; 
+  grid-template-columns: repeat(10, 40px); 
+  gap: 0; 
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 5px;
+}
+.cell { 
+  height: 40px; 
+  border: 1px solid #333; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+  font-weight: bold; 
+  font-size: 1.4em; 
+  background: #2a2a2a; 
+  color: #e0e0e0;
+  box-sizing: border-box; 
+}
+.cell:hover {
+  background: #333;
+}
+.cell.selected {
+  background: #4ade80 !important;
+  color: #000;
+}
+#word-list { 
+  text-align: center; 
+  margin: 0;
+  min-width: 150px;
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+#word-list ul { 
+  list-style: none; 
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+#word-list li { 
+  font-size: 1.2em; 
+  margin: 8px 0; 
+  position: relative;
+  padding-left: 20px;
+  color: #bbb;
+}
+#word-list li.found::before {
+  content: "✓ ";
+  color: #4ade80;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+#word-list li.found {
+  color: #4ade80;
+  text-decoration: line-through;
+}
+button { 
+  padding: 10px 20px; 
+  background: #4ade80; 
+  color: #000;
+  border: none; 
+  border-radius: 5px; 
+  font-size: 1.1em; 
+  cursor: pointer; 
+  margin: 5px;
+  font-weight: 600;
+}
+button:hover { 
+  background: #22c55e; 
+}
+
+/* Desktop layout: side by side */
+@media (min-width: 768px) {
+  .main-content {
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+  }
+  #grid-container {
+    flex: 0 0 auto;
+  }
+  #word-list {
+    flex: 0 0 200px;
+    text-align: left;
+  }
+  #word-list ul {
+    text-align: left;
+  }
+  #word-list li {
+    text-align: left;
+    margin: 10px 0;
+  }
+  button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+  }
+}
+
+/* Mobile: vertical stack */
+@media (max-width: 767px) { 
+  #grid-container { 
+    grid-template-columns: repeat(10, 8vw); 
+  } 
+  .cell { 
+    height: 8vw; 
+    font-size: 1.6em; 
+  } 
+  #word-list {
+    width: 100%;
+  }
+  .main-content {
+    padding: 10px;
+  }
+}
