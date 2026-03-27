@@ -9,6 +9,7 @@ let foundSelected = new Set(); // Persistent selection for found words
 let isDragging = false;
 let dragStartR, dragStartC;
 let moved = false;
+let cells = []; // Cache cell elements for quick access
 
 const directions = [
   {dr: 0, dc: 1},   // right
@@ -105,11 +106,28 @@ function getLinePositions(r1, c1, r2, c2) {
   return positions;
 }
 
+function updateCellSelection(pos, selected) {
+  const [r, c] = pos.split(',').map(Number);
+  const index = r * gridSize + c;
+  if (index < cells.length) {
+    const cell = cells[index];
+    if (selected) {
+      if (!foundSelected.has(pos)) {
+        cell.classList.add('selected');
+      }
+    } else {
+      cell.classList.remove('selected');
+    }
+  }
+}
+
 function clearAll() {
   userSelected.clear();
   foundSelected.clear();
   document.querySelectorAll("li").forEach(li => li.classList.remove("found"));
-  highlight();
+  cells.forEach(cell => {
+    cell.classList.remove('selected', 'found-cell');
+  });
 }
 
 function generateCustomPuzzle() {
@@ -138,6 +156,7 @@ function generateRandomPuzzle() {
 function initGrid() {
   grid = Array(gridSize).fill().map(() => Array(gridSize).fill(""));
   wordPositions.clear();
+  cells = []; // Reset cells cache
   // Place words
   for (let word of words) {
     placeWord(word);
@@ -164,6 +183,7 @@ function initGrid() {
       cell.addEventListener("mousedown", handleMouseDown);
       cell.addEventListener("touchstart", handleTouchStart, { passive: false });
       con.appendChild(cell);
+      cells.push(cell);
     }
   }
   // Word list
@@ -184,8 +204,8 @@ function handleMouseDown(e) {
   const initialPos = `${dragStartR},${dragStartC}`;
   if (!foundSelected.has(initialPos)) {
     userSelected.add(initialPos);
+    updateCellSelection(initialPos, true);
   }
-  highlight();
   checkFound();
   document.addEventListener("mousemove", handleMouseMove);
   document.addEventListener("mouseup", handleMouseUp);
@@ -201,11 +221,11 @@ function handleMouseMove(e) {
     const c = parseInt(elem.dataset.col);
     const linePos = getLinePositions(dragStartR, dragStartC, r, c);
     linePos.forEach(pos => {
-      if (!foundSelected.has(pos)) {
+      if (!foundSelected.has(pos) && !userSelected.has(pos)) {
         userSelected.add(pos);
+        updateCellSelection(pos, true);
       }
     });
-    highlight();
     checkFound();
   }
 }
@@ -222,12 +242,13 @@ function handleMouseUp(e) {
       if (!foundSelected.has(k)) {
         if (userSelected.has(k)) {
           userSelected.delete(k);
+          updateCellSelection(k, false);
         } else {
           userSelected.add(k);
+          updateCellSelection(k, true);
         }
       }
     }
-    highlight();
     checkFound();
   }
 }
@@ -245,8 +266,8 @@ function handleTouchStart(e) {
     const initialPos = `${dragStartR},${dragStartC}`;
     if (!foundSelected.has(initialPos)) {
       userSelected.add(initialPos);
+      updateCellSelection(initialPos, true);
     }
-    highlight();
     checkFound();
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
@@ -264,11 +285,11 @@ function handleTouchMove(e) {
     const c = parseInt(elem.dataset.col);
     const linePos = getLinePositions(dragStartR, dragStartC, r, c);
     linePos.forEach(pos => {
-      if (!foundSelected.has(pos)) {
+      if (!foundSelected.has(pos) && !userSelected.has(pos)) {
         userSelected.add(pos);
+        updateCellSelection(pos, true);
       }
     });
-    highlight();
     checkFound();
   }
 }
@@ -284,54 +305,47 @@ function handleTouchEnd(e) {
       if (!foundSelected.has(k)) {
         if (userSelected.has(k)) {
           userSelected.delete(k);
+          updateCellSelection(k, false);
         } else {
           userSelected.add(k);
+          updateCellSelection(k, true);
         }
       }
     }
-    highlight();
     checkFound();
   }
 }
 
-function getAllSelected() {
-  const all = new Set([...userSelected, ...foundSelected]);
-  return all;
-}
-
-function highlight() {
-  const cells = document.querySelectorAll(".cell");
-  cells.forEach(cell => {
-    const r = parseInt(cell.dataset.row);
-    const c = parseInt(cell.dataset.col);
-    const k = `${r},${c}`;
-    const allSelected = getAllSelected();
-    if (allSelected.has(k)) {
-      cell.style.background = "#4CAF50";
-      cell.style.color = "white";
-    } else {
-      cell.style.background = "white";
-      cell.style.color = "black";
-    }
-  });
-}
-
 function checkFound() {
+  let changed = false;
   document.querySelectorAll("li").forEach(li => {
     const w = li.dataset.word;
     const wordPos = wordPositions.get(w);
     if (wordPos) {
-      const allSelected = getAllSelected();
+      const allSelected = new Set([...userSelected, ...foundSelected]);
       const allFound = Array.from(wordPos).every(pos => allSelected.has(pos));
       if (allFound && !li.classList.contains("found")) {
         li.classList.add("found");
-        wordPos.forEach(pos => foundSelected.add(pos));
+        wordPos.forEach(pos => {
+          foundSelected.add(pos);
+          const [r, c] = pos.split(',').map(Number);
+          const index = r * gridSize + c;
+          if (index < cells.length) {
+            const cell = cells[index];
+            cell.classList.add('found-cell');
+            cell.classList.remove('selected');
+          }
+        });
+        changed = true;
       } else if (!allFound && li.classList.contains("found")) {
         li.classList.remove("found");
+        changed = true;
       }
     }
   });
-  highlight();
+  if (changed) {
+    // Re-highlight if needed, but since classes handle it, no need
+  }
 }
 
 initGrid();
