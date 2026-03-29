@@ -1,0 +1,16 @@
+{
+  "articles": [
+    {
+      "title": "How Mindfulness Can Improve Mental Resilience",
+      "summary": "A new study shows daily 10-min practices build emotional strength.",
+      "url": "https://example.com/mindfulness-resilience",
+      "date": "2026-03-28"
+    },
+    {
+      "title": "Free Tools for Stress Management",
+      "summary": "Top 5 no-cost apps for daily mental health check-ins.",
+      "url": "https://example.com/stress-tools",
+      "date": "2026-03-28"
+    }
+  ]
+}

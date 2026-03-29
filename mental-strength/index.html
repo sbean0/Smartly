@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental Strength Resources — Smartly Academy</title>
+  <style>
+    body {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+    .nav {
+      text-align: center;
+      padding: 10px;
+      background: #1e1e1e;
+      border-bottom: 1px solid #333;
+    }
+    .nav a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #4ade80;
+      font-weight: 600;
+    }
+    .nav a:hover { color: #22c55e; }
+    .container {
+      max-width: 800px; margin: 0 auto; padding: 2rem;
+    }
+    h1 { font-size: 2.5rem; text-align: center; color: #fff; margin-bottom: 2rem; }
+    .section {
+      margin-bottom: 3rem;
+    }
+    .section h2 { color: #4ade80; font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+    .resource {
+      background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
+    }
+    .resource h3 { color: #fff; margin: 0 0 0.5rem 0; }
+    .resource p { color: #bbb; margin: 0 0 0.5rem 0; font-size: 0.95rem; }
+    .resource a { color: #4ade80; text-decoration: none; }
+    .resource a:hover { text-decoration: underline; }
+    .vote-buttons {
+      display: flex; gap: 10px; margin-top: 0.5rem;
+    }
+    .vote-btn {
+      padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; min-width: 40px;
+    }
+    .upvote { background: #4ade80; color: #000; }
+    .downvote { background: #666; color: #e0e0e0; }
+    .vote-btn:hover { opacity: 0.8; }
+    .rating { font-size: 0.9em; color: #888; margin-left: 10px; }
+    .news-item {
+      background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
+    }
+    .news-item h3 { color: #fff; margin: 0 0 0.5rem 0; }
+    .news-item p { color: #bbb; margin: 0; }
+    .news-item a { color: #4ade80; text-decoration: none; }
+    .news-item a:hover { text-decoration: underline; }
+    .news-date { font-size: 0.8em; color: #888; }
+    footer { text-align: center; margin-top: 4rem; color: #666; font-size: 0.8rem; }
+    @media (max-width: 767px) {
+      .container { padding: 1rem; }
+      .vote-buttons { flex-direction: column; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="nav">
+    <a href="../index.html">🏠 Home</a>
+    <a href="../mental-strength-landing.html">← Back to Module</a>
+  </div>
+  <div class="container">
+    <h1>Mental Strength Resources</h1>
+    <p style="text-align: center; color: #bbb;">Curated free online tools for building resilience. Vote to help the community!</p>
+    
+    <div class="section">
+      <h2>🧘 Curated Resources</h2>
+      <div class="resource" data-id="insight-timer">
+        <h3>Insight Timer App</h3>
+        <p>Thousands of free guided meditations and talks on stress reduction and focus.</p>
+        <a href="https://insighttimer.com" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('insight-timer', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('insight-timer', -1)">👎</button>
+          <span class="rating" id="rating-insight-timer">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="headspace-free">
+        <h3>Headspace Free Sessions</h3>
+        <p>Introductory free meditations for beginners on breathing and present-moment awareness.</p>
+        <a href="https://www.headspace.com/meditation" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('headspace-free', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('headspace-free', -1)">👎</button>
+          <span class="rating" id="rating-headspace-free">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="positivepsychology">
+        <h3>PositivePsychology.com Free Tools</h3>
+        <p>Downloadable worksheets and exercises for gratitude, self-compassion, and emotional regulation.</p>
+        <a href="https://positivepsychology.com/free-resources/" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('positivepsychology', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('positivepsychology', -1)">👎</button>
+          <span class="rating" id="rating-positivepsychology">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="ted-resilience">
+        <h3>TED Talks on Resilience</h3>
+        <p>Free videos like "The Power of Vulnerability" by Brené Brown for building mental toughness.</p>
+        <a href="https://www.ted.com/topics/resilience" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('ted-resilience', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('ted-resilience', -1)">👎</button>
+          <span class="rating" id="rating-ted-resilience">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="nimh-guides">
+        <h3>NIMH Mental Health Guides</h3>
+        <p>Free PDFs and tips from the National Institute of Mental Health on coping strategies and self-care.</p>
+        <a href="https://www.nimh.nih.gov/health/topics" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('nimh-guides', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('nimh-guides', -1)">👎</button>
+          <span class="rating" id="rating-nimh-guides">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="who-mental-health">
+        <h3>WHO Mental Health Resources</h3>
+        <p>Global free guides on stress management, depression, and building psychological well-being.</p>
+        <a href="https://www.who.int/health-topics/mental-health" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('who-mental-health', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('who-mental-health', -1)">👎</button>
+          <span class="rating" id="rating-who-mental-health">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="calm-free">
+        <h3>Calm Free Content</h3>
+        <p>Daily free meditations and sleep stories for relaxation and mental clarity.</p>
+        <a href="https://www.calm.com" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('calm-free', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('calm-free', -1)">👎</button>
+          <span class="rating" id="rating-calm-free">Rating: 0</span>
+        </div>
+      </div>
+      <div class="resource" data-id="7cups">
+        <h3>7 Cups of Tea</h3>
+        <p>Free emotional support chat with listeners and self-help resources for anxiety and stress.</p>
+        <a href="https://www.7cups.com" target="_blank">Visit Site</a>
+        <div class="vote-buttons">
+          <button class="vote-btn upvote" onclick="vote('7cups', 1)">👍</button>
+          <button class="vote-btn downvote" onclick="vote('7cups', -1)">👎</button>
+          <span class="rating" id="rating-7cups">Rating: 0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📰 Daily News Feed</h2>
+      <div id="news-feed">
+        <p>Loading daily articles...</p>
+      </div>
+      <button onclick="refreshNews()">Refresh News</button>
+    </div>
+
+    <footer>
+      &copy; 2026 Smartly Academy. Vote to curate—your input shapes the hub!
+    </footer>
+  </div>
+
+  <script>
+    const resources = {
+      'insight-timer': { name: 'Insight Timer', votes: 0 },
+      'headspace-free': { name: 'Headspace Free', votes: 0 },
+      'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
+      'ted-resilience': { name: 'TED Resilience', votes: 0 },
+      'nimh-guides': { name: 'NIMH Guides', votes: 0 },
+      'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
+      'calm-free': { name: 'Calm Free', votes: 0 },
+      '7cups': { name: '7 Cups', votes: 0 }
+    };
+
+    function loadVotes() {
+      const saved = localStorage.getItem('mentalStrengthVotes');
+      if (saved) {
+        Object.assign(resources, JSON.parse(saved));
+        updateRatings();
+      }
+    }
+
+    function saveVotes() {
+      localStorage.setItem('mentalStrengthVotes', JSON.stringify(resources));
+    }
+
+    function vote(id, delta) {
+      resources[id].votes += delta;
+      updateRating(id);
+      saveVotes();
+    }
+
+    function updateRatings() {
+      Object.keys(resources).forEach(id => updateRating(id));
+    }
+
+    function updateRating(id) {
+      const ratingEl = document.getElementById('rating-' + id);
+      if (ratingEl) {
+        const avg = resources[id].votes > 0 ? '+' + resources[id].votes : resources[id].votes;
+        ratingEl.textContent = 'Rating: ' + avg;
+      }
+    }
+
+    function loadNews() {
+      fetch('news.json')
+        .then(response => response.json())
+        .then(data => {
+          const feed = document.getElementById('news-feed');
+          feed.innerHTML = data.articles.map(article => `
+            <div class="news-item">
+              <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+              <p>${article.summary}</p>
+              <div class="news-date">${article.date}</div>
+            </div>
+          `).join('');
+        })
+        .catch(() => {
+          document.getElementById('news-feed').innerHTML = '<p>No news available. Check back later!</p>';
+        });
+    }
+
+    function refreshNews() {
+      loadNews();
+    }
+
+    loadVotes();
+    loadNews();
+  </script>
+
+</body>
+</html>
