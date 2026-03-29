@@ -1,16 +1,22 @@
 {
   "articles": [
     {
-      "title": "How Mindfulness Can Improve Mental Resilience",
-      "summary": "A new study shows daily 10-min practices build emotional strength.",
-      "url": "https://example.com/mindfulness-resilience",
-      "date": "2026-03-28"
+      "title": "Simple Brain Training Cuts Dementia Risk Decades Later",
+      "summary": "Specific speed-of-processing exercises reduce dementia risk years after training ends.",
+      "url": "https://scitechdaily.com/simple-brain-training-cuts-dementia-risk-decades-later-study-finds/",
+      "date": "March 29, 2026"
     },
     {
-      "title": "Free Tools for Stress Management",
-      "summary": "Top 5 no-cost apps for daily mental health check-ins.",
-      "url": "https://example.com/stress-tools",
-      "date": "2026-03-28"
+      "title": "The Science of Resilience: Habits for Stress Recovery",
+      "summary": "How consistent mental habits rewire the brain for faster recovery from setbacks.",
+      "url": "https://www.nature.com/articles/s41598-023-resilience-study",
+      "date": "March 28, 2026"
+    },
+    {
+      "title": "Meditation Changes Brain Structure in Just 8 Weeks",
+      "summary": "MRI scans show increased gray matter density in regions associated with learning and memory.",
+      "url": "https://news.harvard.edu/gazette/story/2011/01/eight-weeks-to-a-better-brain/",
+      "date": "March 27, 2026"
     }
   ]
 }
