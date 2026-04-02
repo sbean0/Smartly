@@ -267,7 +267,7 @@ window.addEventListener("load", () => {
               <p>${article.summary}</p>
               <div class="news-date">${article.date}</div>
             </div>
-          `).join('');
+          `).join(''); updateNewsVotes();
         })
         .catch(() => {
           document.getElementById('news-feed').innerHTML = '<p>No news available. Check back later!</p>';
