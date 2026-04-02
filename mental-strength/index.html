@@ -267,7 +267,12 @@ window.addEventListener("load", () => {
               <p>${article.summary}</p>
               <div class="news-date">${article.date}</div>
             </div>
-          `).join(''); updateNewsVotes();
+              <div class="news-vote-buttons">
+                <button class="news-vote-btn up" onclick="newsVote(this, '${article.title}', 1)">👍 <span class="news-vote-count">0</span></button>
+                <button class="news-vote-btn down" onclick="newsVote(this, '${article.title}', -1)">👎</button>
+              </div>
+            </div>
+          `).join(''); updateNewsVotes(); updateNewsVotes();
         })
         .catch(() => {
           document.getElementById('news-feed').innerHTML = '<p>No news available. Check back later!</p>';
@@ -287,6 +292,10 @@ updateNewsVotes();
     }
 
     loadVotes();
+document.addEventListener("DOMContentLoaded", () => {
+  loadNews();
+  updateNewsVotes();
+});
   // Load saved news votes on init
   document.addEventListener("DOMContentLoaded", () => {
     loadNews();
