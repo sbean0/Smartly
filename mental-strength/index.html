@@ -239,12 +239,29 @@
       }
     }
 
+
+
+// Load saved news votes after fetch
+window.addEventListener("load", () => {
+  // Simulate post-load vote update
+  setTimeout(() => {
+    document.querySelectorAll(".news-vote-btn.up").forEach(btn => {
+      const title = btn.closest(".news-item")?.querySelector("h3 a")?.textContent || "";
+      const key = "smartly-news-vote-" + btoa(title).substring(0,20);
+      const span = btn.querySelector(".news-vote-count");
+      if (span && key) {
+        span.textContent = localStorage.getItem(key) || "0";
+      }
+    });
+  }, 500);
+});
     function loadNews() {
       fetch('news.json')
         .then(response => response.json())
         .then(data => {
           const feed = document.getElementById('news-feed');
           feed.innerHTML = data.articles.map(article => `
+          updateNewsVotes();
             <div class="news-item">
               <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
               <p>${article.summary}</p>
@@ -260,19 +277,22 @@
     function refreshNews() {
   // Load saved news votes on init
   document.addEventListener("DOMContentLoaded", () => {
-    loadNews(); // This will handle vote display on load
+    loadNews();
+updateNewsVotes(); // This will handle vote display on load
   });
       loadNews();
+updateNewsVotes();
     }
 
     loadVotes();
   // Load saved news votes on init
   document.addEventListener("DOMContentLoaded", () => {
-    loadNews(); // This will handle vote display on load
+    loadNews();
+updateNewsVotes(); // This will handle vote display on load
   });
     loadNews();
+updateNewsVotes();
   </script>
 
 </body>
 </html>
-function newsVote(button, title, delta) {\n  const countSpan = button.querySelector(\".news-vote-count\");\n  const key = \"smartly-news-vote-\" + btoa(title).substring(0,20); // Short hash for key\n  let votes = parseInt(localStorage.getItem(key) || \"0\", 10);\n  votes = Math.max(0, votes + delta);\n  localStorage.setItem(key, votes);\n  if (countSpan) countSpan.textContent = votes;\n}
