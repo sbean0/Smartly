@@ -51,6 +51,31 @@
     .vote-btn:hover { opacity: 0.8; }
     .rating { font-size: 0.9em; color: #888; margin-left: 10px; }
     .news-item {
+    .news-vote-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 0.5rem;
+      justify-content: flex-end;
+    }
+    .news-vote-btn {
+      height: 24px;
+      padding: 0.2rem 0.4rem;
+      font-size: 0.7rem;
+      border: 1px solid #4ade80;
+      border-radius: 3px;
+      cursor: pointer;
+      background: #1e1e1e;
+      color: #4ade80;
+      min-width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .news-vote-btn.up:hover { background: #4ade80; color: #000; }
+    .news-vote-btn.down { border-color: #666; color: #bbb; }
+    .news-vote-btn.down:hover { background: #666; color: #e0e0e0; }
+    .news-vote-count { font-weight: bold; margin-left: 2px; }
       background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
     }
     .news-item h3 { color: #fff; margin: 0 0 0.5rem 0; }
@@ -233,12 +258,21 @@
     }
 
     function refreshNews() {
+  // Load saved news votes on init
+  document.addEventListener("DOMContentLoaded", () => {
+    loadNews(); // This will handle vote display on load
+  });
       loadNews();
     }
 
     loadVotes();
+  // Load saved news votes on init
+  document.addEventListener("DOMContentLoaded", () => {
+    loadNews(); // This will handle vote display on load
+  });
     loadNews();
   </script>
 
 </body>
 </html>
+function newsVote(button, title, delta) {\n  const countSpan = button.querySelector(\".news-vote-count\");\n  const key = \"smartly-news-vote-\" + btoa(title).substring(0,20); // Short hash for key\n  let votes = parseInt(localStorage.getItem(key) || \"0\", 10);\n  votes = Math.max(0, votes + delta);\n  localStorage.setItem(key, votes);\n  if (countSpan) countSpan.textContent = votes;\n}
