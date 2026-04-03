@@ -256,6 +256,27 @@ window.addEventListener("load", () => {
   }, 500);
 });
     function loadNews() {
+function updateNewsVotes() {
+  document.querySelectorAll(".news-item").forEach(item => {
+    const title = item.querySelector("h3 a")?.textContent || "";
+    const key = "smartly-news-vote-" + btoa(title).substring(0,20);
+    const span = item.querySelector(".news-vote-count");
+    if (span && key) {
+      span.textContent = localStorage.getItem(key) || "0";
+    }
+  });
+}
+
+function newsVote(button, title, delta) {
+  const countSpan = button.querySelector(".news-vote-count");
+  const key = "smartly-news-vote-" + btoa(title).substring(0,20);
+  let votes = parseInt(localStorage.getItem(key) || "0", 10);
+  votes = Math.max(0, votes + delta);
+  localStorage.setItem(key, votes);
+  if (countSpan) countSpan.textContent = votes;
+  updateNewsVotes();
+}
+
       fetch('news.json')
         .then(response => response.json())
         .then(data => {
@@ -272,7 +293,7 @@ window.addEventListener("load", () => {
                 <button class="news-vote-btn down" onclick="newsVote(this, '${article.title}', -1)">👎</button>
               </div>
             </div>
-          `).join(''); updateNewsVotes(); updateNewsVotes();
+          `).join(); updateNewsVotes();
         })
         .catch(() => {
           document.getElementById('news-feed').innerHTML = '<p>No news available. Check back later!</p>';
@@ -281,15 +302,7 @@ window.addEventListener("load", () => {
 
     function refreshNews() {
   // Load saved news votes on init
-  document.addEventListener("DOMContentLoaded", () => {
-    loadNews();
-updateNewsVotes();
- // This will handle vote display on load
-  });
-      loadNews();
-updateNewsVotes();
-
-    }
+  
 
     loadVotes();
 document.addEventListener("DOMContentLoaded", () => {
