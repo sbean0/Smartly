@@ -46,6 +46,16 @@
     .vote-btn {
       padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; min-width: 40px;
     }
+#toggle-resources {
+  background: #4ade80;
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-bottom: 1rem;
+}
     .upvote { background: #4ade80; color: #000; }
     .downvote { background: #666; color: #e0e0e0; }
     .vote-btn:hover { opacity: 0.8; }
@@ -209,7 +219,41 @@
       '7cups': { name: '7 Cups', votes: 0 }
     };
 
-    function loadVotes() {
+    
+function sortAndShowResources() {
+  const container = document.querySelector('.section:has(.resource)');
+  const resourcesEls = Array.from(container.querySelectorAll('.resource'));
+  resourcesEls.sort((a, b) => {
+    const aVotes = parseInt(resources[a.dataset.id].votes || 0);
+    const bVotes = parseInt(resources[b.dataset.id].votes || 0);
+    return bVotes - aVotes;
+  });
+  resourcesEls.forEach(el => container.appendChild(el));
+  showTop3();
+}
+
+function showTop3() {
+  const resourcesEls = document.querySelectorAll('.resource');
+  resourcesEls.forEach((el, index) => {
+    el.style.display = index < 3 ? 'block' : 'none';
+  });
+  document.getElementById('toggle-resources').textContent = 'Show All Resources';
+}
+
+function showAll() {
+  document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
+  document.getElementById('toggle-resources').textContent = 'Show Top Resources';
+}
+
+function toggleResources() {
+  const btn = document.getElementById('toggle-resources');
+  if (btn.textContent === 'Show All Resources') {
+    showAll();
+  } else {
+    showTop3();
+  }
+}
+function loadVotes() { sortAndShowResources(); 
       const saved = localStorage.getItem('mentalStrengthVotes');
       if (saved) {
         Object.assign(resources, JSON.parse(saved));
