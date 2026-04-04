@@ -1,368 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mental Strength Resources — Smartly Academy</title>
-  <style>
-    body {
-      margin: 0; padding: 0; box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      background: #121212;
-      color: #e0e0e0;
-      line-height: 1.6;
-    }
-    .nav {
-      text-align: center;
-      padding: 10px;
-      background: #1e1e1e;
-      border-bottom: 1px solid #333;
-    }
-    .nav a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: #4ade80;
-      font-weight: 600;
-    }
-    .nav a:hover { color: #22c55e; }
-    .container {
-      max-width: 800px; margin: 0 auto; padding: 2rem;
-    }
-    h1 { font-size: 2.5rem; text-align: center; color: #fff; margin-bottom: 2rem; }
-    .section {
-      margin-bottom: 3rem;
-    }
-    .section h2 { color: #4ade80; font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
-    .resource {
-      background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
-    }
-    .resource h3 { color: #fff; margin: 0 0 0.5rem 0; }
-    .resource p { color: #bbb; margin: 0 0 0.5rem 0; font-size: 0.95rem; }
-    .resource a { color: #4ade80; text-decoration: none; }
-    .resource a:hover { text-decoration: underline; }
-    .vote-buttons {
-      display: flex; gap: 10px; margin-top: 0.5rem;
-    }
-    .vote-btn {
-      padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; min-width: 40px;
-    }
-#toggle-resources {
-  background: #4ade80;
-  color: #000;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-  margin-bottom: 1rem;
-}
-    .upvote { background: #4ade80; color: #000; }
-    .downvote { background: #666; color: #e0e0e0; }
-    .vote-btn:hover { opacity: 0.8; }
-    .rating { font-size: 0.9em; color: #888; margin-left: 10px; }
-    .news-item {
-    .news-vote-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 0.5rem;
-      justify-content: flex-end;
-    }
-    .news-vote-btn {
-      height: 24px;
-      padding: 0.2rem 0.4rem;
-      font-size: 0.7rem;
-      border: 1px solid #4ade80;
-      border-radius: 3px;
-      cursor: pointer;
-      background: #1e1e1e;
-      color: #4ade80;
-      min-width: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    .news-vote-btn.up:hover { background: #4ade80; color: #000; }
-    .news-vote-btn.down { border-color: #666; color: #bbb; }
-    .news-vote-btn.down:hover { background: #666; color: #e0e0e0; }
-    .news-vote-count { font-weight: bold; margin-left: 2px; }
-      background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
-    }
-    .news-item h3 { color: #fff; margin: 0 0 0.5rem 0; }
-    .news-item p { color: #bbb; margin: 0; }
-    .news-item a { color: #4ade80; text-decoration: none; }
-    .news-item a:hover { text-decoration: underline; }
-    .news-date { font-size: 0.8em; color: #888; }
-    footer { text-align: center; margin-top: 4rem; color: #666; font-size: 0.8rem; }
-    @media (max-width: 767px) {
-      .container { padding: 1rem; }
-      .vote-buttons { flex-direction: column; }
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Strength Resources — Smartly Academy</title>
+    <style>
+        body { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; background: #121212; color: #e0e0e0; line-height: 1.6; }
+        .nav { text-align: center; padding: 10px; background: #1e1e1e; border-bottom: 1px solid #333; }
+        .nav a { margin: 0 10px; text-decoration: none; color: #4ade80; font-weight: 600; }
+        .nav a:hover { color: #22c55e; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2.5rem; text-align: center; color: #fff; margin-bottom: 2rem; }
+        .section { margin-bottom: 3rem; }
+        .section h2 { color: #4ade80; font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+
+        .resource, .news-item {
+            background: #1e1e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #4ade80;
+        }
+        .resource h3, .news-item h3 { color: #fff; margin: 0 0 0.5rem 0; }
+        .resource p, .news-item p { color: #bbb; margin: 0 0 0.5rem 0; font-size: 0.95rem; }
+        .resource a, .news-item a { color: #4ade80; text-decoration: none; }
+        .resource a:hover, .news-item a:hover { text-decoration: underline; }
+
+        .vote-buttons, .news-vote-buttons { display: flex; gap: 10px; margin-top: 0.5rem; align-items: center; }
+        .vote-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; min-width: 40px; }
+        .upvote { background: #4ade80; color: #000; }
+        .downvote { background: #666; color: #e0e0e0; }
+        .vote-btn:hover { opacity: 0.8; }
+
+        #toggle-resources {
+            background: #4ade80; color: #000; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin-bottom: 1rem;
+        }
+        .rating, .news-vote-count { font-size: 0.9em; color: #888; margin-left: 10px; font-style: italic; }
+
+        .news-date { font-size: 0.8em; color: #888; margin-bottom: 0.5rem; }
+        .news-vote-buttons { justify-content: flex-end; }
+        .news-vote-btn {
+            height: 24px; padding: 0.2rem 0.4rem; font-size: 0.7rem; border: 1px solid #4ade80; border-radius: 3px;
+            cursor: pointer; background: #1e1e1e; color: #4ade80; min-width: 28px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .news-vote-btn.up:hover { background: #4ade80; color: #000; }
+        .news-vote-btn.down { border-color: #666; color: #bbb; }
+        .news-vote-btn.down:hover { background: #666; color: #e0e0e0; }
+
+        footer { text-align: center; margin-top: 4rem; color: #666; font-size: 0.8rem; }
+        @media (max-width: 767px) {
+            .container { padding: 1rem; }
+            .vote-buttons { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="nav">
-    <a href="../index.html">🏠 Home</a>
-    <a href="../mental-strength-landing.html">← Back to Module</a>
-  </div>
-  <div class="container">
-    <h1>Mental Strength Resources</h1>
-    <p style="text-align: center; color: #bbb;">Curated free online tools for building resilience. Vote to help the community!</p>
-    
-    <div class="section">
-      <h2>🧘 Curated Resources</h2>
-      <div class="resource" data-id="insight-timer">
-        <h3>Insight Timer App</h3>
-        <p>Thousands of free guided meditations and talks on stress reduction and focus.</p>
-        <a href="https://insighttimer.com" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('insight-timer', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('insight-timer', -1)">👎</button>
-          <span class="rating" id="rating-insight-timer">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="headspace-free">
-        <h3>Headspace Free Sessions</h3>
-        <p>Introductory free meditations for beginners on breathing and present-moment awareness.</p>
-        <a href="https://www.headspace.com/meditation" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('headspace-free', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('headspace-free', -1)">👎</button>
-          <span class="rating" id="rating-headspace-free">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="positivepsychology">
-        <h3>PositivePsychology.com Free Tools</h3>
-        <p>Downloadable worksheets and exercises for gratitude, self-compassion, and emotional regulation.</p>
-        <a href="https://positivepsychology.com/free-resources/" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('positivepsychology', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('positivepsychology', -1)">👎</button>
-          <span class="rating" id="rating-positivepsychology">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="ted-resilience">
-        <h3>TED Talks on Resilience</h3>
-        <p>Free videos like "The Power of Vulnerability" by Brené Brown for building mental toughness.</p>
-        <a href="https://www.ted.com/topics/resilience" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('ted-resilience', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('ted-resilience', -1)">👎</button>
-          <span class="rating" id="rating-ted-resilience">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="nimh-guides">
-        <h3>NIMH Mental Health Guides</h3>
-        <p>Free PDFs and tips from the National Institute of Mental Health on coping strategies and self-care.</p>
-        <a href="https://www.nimh.nih.gov/health/topics" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('nimh-guides', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('nimh-guides', -1)">👎</button>
-          <span class="rating" id="rating-nimh-guides">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="who-mental-health">
-        <h3>WHO Mental Health Resources</h3>
-        <p>Global free guides on stress management, depression, and building psychological well-being.</p>
-        <a href="https://www.who.int/health-topics/mental-health" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('who-mental-health', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('who-mental-health', -1)">👎</button>
-          <span class="rating" id="rating-who-mental-health">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="calm-free">
-        <h3>Calm Free Content</h3>
-        <p>Daily free meditations and sleep stories for relaxation and mental clarity.</p>
-        <a href="https://www.calm.com" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('calm-free', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('calm-free', -1)">👎</button>
-          <span class="rating" id="rating-calm-free">Rating: 0</span>
-        </div>
-      </div>
-      <div class="resource" data-id="7cups">
-        <h3>7 Cups of Tea</h3>
-        <p>Free emotional support chat with listeners and self-help resources for anxiety and stress.</p>
-        <a href="https://www.7cups.com" target="_blank">Visit Site</a>
-        <div class="vote-buttons">
-          <button class="vote-btn upvote" onclick="vote('7cups', 1)">👍</button>
-          <button class="vote-btn downvote" onclick="vote('7cups', -1)">👎</button>
-          <span class="rating" id="rating-7cups">Rating: 0</span>
-        </div>
-      </div>
+    <div class="nav">
+        <a href="../index.html">🏠 Home</a>
+        <a href="../mental-strength-landing.html">← Back to Module</a>
     </div>
 
-    <div class="section">
-      <h2>📰 Daily News Feed</h2>
-      <div id="news-feed">
-        <p>Loading daily articles...</p>
-      </div>
-      <button onclick="refreshNews()">Refresh News</button>
+    <div class="container">
+        <h1>Mental Strength Resources</h1>
+        <p style="text-align: center; color: #bbb;">Curated free online tools for building resilience.<br>
+        <small>Community votes are saved and shared live for everyone!</small></p>
+
+        <div class="section">
+            <h2>🧘 Curated Resources</h2>
+            <button id="toggle-resources">Show All Resources</button>
+
+            <div class="resource" data-id="insight-timer">
+                <h3>Insight Timer App</h3>
+                <p>Thousands of free guided meditations and talks on stress reduction, focus, and mental strength.</p>
+                <a href="https://insighttimer.com" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="insight-timer" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="insight-timer" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-insight-timer">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="headspace-free">
+                <h3>Headspace Free Sessions</h3>
+                <p>Introductory free meditations for beginners on breathing and present-moment awareness.</p>
+                <a href="https://www.headspace.com/meditation" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="headspace-free" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="headspace-free" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-headspace-free">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="ucla-mindful">
+                <h3>UCLA Mindful – Free Guided Meditations</h3>
+                <p>Excellent free guided meditations and mindfulness practices from UCLA Health.</p>
+                <a href="https://www.uclahealth.org/uclamindful/free-guided-meditations" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="ucla-mindful" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="ucla-mindful" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-ucla-mindful">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="positivepsychology">
+                <h3>PositivePsychology.com Free Tools</h3>
+                <p>Downloadable worksheets and exercises for gratitude, self-compassion, and emotional regulation.</p>
+                <a href="https://positivepsychology.com/free-resources/" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="positivepsychology" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="positivepsychology" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-positivepsychology">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="ted-resilience">
+                <h3>TED Talks on Resilience</h3>
+                <p>Powerful free videos including Brené Brown on vulnerability and building mental toughness.</p>
+                <a href="https://www.ted.com/topics/resilience" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="ted-resilience" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="ted-resilience" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-ted-resilience">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="nimh-guides">
+                <h3>NIMH Mental Health Guides</h3>
+                <p>Free official PDFs and coping strategies from the National Institute of Mental Health.</p>
+                <a href="https://www.nimh.nih.gov/health/topics" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="nimh-guides" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="nimh-guides" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-nimh-guides">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="who-mental-health">
+                <h3>WHO Mental Health Resources</h3>
+                <p>Global free guides on stress management, depression, and psychological well-being.</p>
+                <a href="https://www.who.int/health-topics/mental-health" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="who-mental-health" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="who-mental-health" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-who-mental-health">Rating: 0</span>
+                </div>
+            </div>
+
+            <div class="resource" data-id="mindful-org">
+                <h3>Mindful.org Free Resources</h3>
+                <p>High-quality articles, guided meditations, and practices for building resilience.</p>
+                <a href="https://www.mindful.org" target="_blank">Visit Site</a>
+                <div class="vote-buttons">
+                    <button class="vote-btn upvote" data-id="mindful-org" data-delta="1">👍</button>
+                    <button class="vote-btn downvote" data-id="mindful-org" data-delta="-1">👎</button>
+                    <span class="rating" id="rating-mindful-org">Rating: 0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📰 Daily News Feed</h2>
+            <div id="news-feed"><p>Loading daily articles with community voting...</p></div>
+            <button id="refresh-news">Refresh News</button>
+        </div>
+
+        <footer>&copy; 2026 Smartly Academy. Community-powered hub!</footer>
     </div>
 
-    <footer>
-      &copy; 2026 Smartly Academy. Vote to curate—your input shapes the hub!
-    </footer>
-  </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, onValue, child, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-  <script>
-    const resources = {
-      'insight-timer': { name: 'Insight Timer', votes: 0 },
-      'headspace-free': { name: 'Headspace Free', votes: 0 },
-      'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
-      'ted-resilience': { name: 'TED Resilience', votes: 0 },
-      'nimh-guides': { name: 'NIMH Guides', votes: 0 },
-      'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
-      'calm-free': { name: 'Calm Free', votes: 0 },
-      '7cups': { name: '7 Cups', votes: 0 }
-    };
+        const firebaseConfig = {
+          apiKey: "AIzaSyA2cJltp_NaPdGWDvxVOShkd65c8fyiwe0",
+          authDomain: "smartly-academy-votes.firebaseapp.com",
+          databaseURL: "https://smartly-academy-votes-default-rtdb.firebaseio.com",
+          projectId: "smartly-academy-votes",
+          storageBucket: "smartly-academy-votes.firebasestorage.app",
+          messagingSenderId: "807796293717",
+          appId: "1:807796293717:web:70a92660377d129e4094dc"
+        };
 
-    
-function sortAndShowResources() {
-  const container = document.querySelector('.section:has(.resource)');
-  const resourcesEls = Array.from(container.querySelectorAll('.resource'));
-  resourcesEls.sort((a, b) => {
-    const aVotes = parseInt(resources[a.dataset.id].votes || 0);
-    const bVotes = parseInt(resources[b.dataset.id].votes || 0);
-    return bVotes - aVotes;
-  });
-  resourcesEls.forEach(el => container.appendChild(el));
-  showTop3();
-}
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-function showTop3() {
-  const resourcesEls = document.querySelectorAll('.resource');
-  resourcesEls.forEach((el, index) => {
-    el.style.display = index < 3 ? 'block' : 'none';
-  });
-  document.getElementById('toggle-resources').textContent = 'Show All Resources';
-}
+        const resourcesRef = ref(db, 'mentalStrength/resources');
+        const newsVotesRef = ref(db, 'mentalStrength/newsVotes');
 
-function showAll() {
-  document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
-  document.getElementById('toggle-resources').textContent = 'Show Top Resources';
-}
+        let resources = {
+            'insight-timer': { name: 'Insight Timer', votes: 0 },
+            'headspace-free': { name: 'Headspace Free', votes: 0 },
+            'ucla-mindful': { name: 'UCLA Mindful', votes: 0 },
+            'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
+            'ted-resilience': { name: 'TED Resilience', votes: 0 },
+            'nimh-guides': { name: 'NIMH Guides', votes: 0 },
+            'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
+            'mindful-org': { name: 'Mindful.org', votes: 0 }
+        };
 
-function toggleResources() {
-  const btn = document.getElementById('toggle-resources');
-  if (btn.textContent === 'Show All Resources') {
-    showAll();
-  } else {
-    showTop3();
-  }
-}
-function loadVotes() { sortAndShowResources(); 
-      const saved = localStorage.getItem('mentalStrengthVotes');
-      if (saved) {
-        Object.assign(resources, JSON.parse(saved));
-        updateRatings();
-      }
-    }
+        function loadVotes() {
+            onValue(resourcesRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                Object.keys(resources).forEach(id => resources[id].votes = data[id] || 0);
+                updateAllRatings();
+                sortAndShowResources();
+            });
+        }
 
-    function saveVotes() {
-      localStorage.setItem('mentalStrengthVotes', JSON.stringify(resources));
-    }
+        function vote(id, delta) {
+            if (resources[id]) {
+                const voteRef = child(resourcesRef, id);
+                runTransaction(voteRef, (current) => (current || 0) + delta);
+            }
+        }
 
-    function vote(id, delta) {
-      resources[id].votes += delta;
-      updateRating(id);
-      saveVotes();
-    }
+        function updateAllRatings() {
+            Object.keys(resources).forEach(id => {
+                const el = document.getElementById('rating-' + id);
+                if (el) {
+                    const v = resources[id].votes;
+                    el.textContent = `Rating: ${v > 0 ? '+' + v : v}`;
+                }
+            });
+        }
 
-    function updateRatings() {
-      Object.keys(resources).forEach(id => updateRating(id));
-    }
+        function sortAndShowResources() {
+            const container = document.querySelector('.section:has(.resource)');
+            if (!container) return;
+            const els = Array.from(container.querySelectorAll('.resource'));
+            els.sort((a, b) => (resources[b.dataset.id]?.votes || 0) - (resources[a.dataset.id]?.votes || 0));
+            els.forEach(el => container.appendChild(el));
+            showTop3();
+        }
 
-    function updateRating(id) {
-      const ratingEl = document.getElementById('rating-' + id);
-      if (ratingEl) {
-        const avg = resources[id].votes > 0 ? '+' + resources[id].votes : resources[id].votes;
-        ratingEl.textContent = 'Rating: ' + avg;
-      }
-    }
+        function showTop3() {
+            document.querySelectorAll('.resource').forEach((el, i) => el.style.display = i < 3 ? 'block' : 'none');
+            document.getElementById('toggle-resources').textContent = 'Show All Resources';
+        }
 
+        function showAll() {
+            document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
+            document.getElementById('toggle-resources').textContent = 'Show Top Resources';
+        }
 
+        function toggleResources() {
+            const btn = document.getElementById('toggle-resources');
+            btn.textContent.includes('All') ? showAll() : showTop3();
+        }
 
-// Load saved news votes after fetch
-window.addEventListener("load", () => {
-  // Simulate post-load vote update
-  setTimeout(() => {
-    document.querySelectorAll(".news-vote-btn.up").forEach(btn => {
-      const title = btn.closest(".news-item")?.querySelector("h3 a")?.textContent || "";
-      const key = "smartly-news-vote-" + btoa(title).substring(0,20);
-      const span = btn.querySelector(".news-vote-count");
-      if (span && key) {
-        span.textContent = localStorage.getItem(key) || "0";
-      }
-    });
-  }, 500);
-});
-    function loadNews() {
-function updateNewsVotes() {
-  document.querySelectorAll(".news-item").forEach(item => {
-    const title = item.querySelector("h3 a")?.textContent || "";
-    const key = "smartly-news-vote-" + btoa(title).substring(0,20);
-    const span = item.querySelector(".news-vote-count");
-    if (span && key) {
-      span.textContent = localStorage.getItem(key) || "0";
-    }
-  });
-}
+        function attachResourceListeners() {
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    const delta = parseInt(btn.dataset.delta);
+                    vote(id, delta);
+                });
+            });
+        }
 
-function newsVote(button, title, delta) {
-  const countSpan = button.querySelector(".news-vote-count");
-  const key = "smartly-news-vote-" + btoa(title).substring(0,20);
-  let votes = parseInt(localStorage.getItem(key) || "0", 10);
-  votes = Math.max(0, votes + delta);
-  localStorage.setItem(key, votes);
-  if (countSpan) countSpan.textContent = votes;
-  updateNewsVotes();
-}
+        // === Shared News Voting ===
+        let currentNews = [];
 
-      fetch('news.json')
-        .then(response => response.json())
-        .then(data => {
-          const feed = document.getElementById('news-feed');
-          feed.innerHTML = data.articles.map(article => `
-          
-            <div class="news-item">
-              <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-              <p>${article.summary}</p>
-              <div class="news-date">${article.date}</div>
-            </div>
-              <div class="news-vote-buttons">
-                <button class="news-vote-btn up" onclick="newsVote(this, '${article.title}', 1)">👍 <span class="news-vote-count">0</span></button>
-                <button class="news-vote-btn down" onclick="newsVote(this, '${article.title}', -1)">👎</button>
-              </div>
-            </div>
-          `).join(); updateNewsVotes();
-        })
-        .catch(() => {
-          document.getElementById('news-feed').innerHTML = '<p>No news available. Check back later!</p>';
+        function loadNews() {
+            // Example news – replace with fetch('news.json') when you have the file
+            currentNews = [
+                {
+                    id: "news1",
+                    title: "How Mindfulness Builds Resilience in 2026",
+                    summary: "New studies show daily mindfulness practice significantly improves mental toughness.",
+                    url: "https://example.com/resilience2026",
+                    date: "April 3, 2026"
+                },
+                {
+                    id: "news2",
+                    title: "The Power of Vulnerability – Brené Brown Update",
+                    summary: "Latest insights on how embracing vulnerability strengthens mental health.",
+                    url: "https://example.com/brene-brown",
+                    date: "April 2, 2026"
+                }
+            ];
+
+            const feed = document.getElementById('news-feed');
+            feed.innerHTML = currentNews.map(article => `
+                <div class="news-item" data-news-id="${article.id}">
+                    <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                    <p>${article.summary}</p>
+                    <div class="news-date">${article.date}</div>
+                    <div class="news-vote-buttons">
+                        <button class="news-vote-btn up" data-news-id="${article.id}" data-delta="1">👍 <span class="news-vote-count">0</span></button>
+                        <button class="news-vote-btn down" data-news-id="${article.id}" data-delta="-1">👎</button>
+                    </div>
+                </div>
+            `).join('');
+
+            attachNewsListeners();
+            loadNewsVotes();
+        }
+
+        function loadNewsVotes() {
+            onValue(newsVotesRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                document.querySelectorAll('.news-item').forEach(item => {
+                    const id = item.dataset.newsId;
+                    const countEl = item.querySelector('.news-vote-count');
+                    if (countEl) countEl.textContent = data[id] || 0;
+                });
+            });
+        }
+
+        function newsVote(newsId, delta) {
+            const voteRef = child(newsVotesRef, newsId);
+            runTransaction(voteRef, (current) => (current || 0) + delta);
+        }
+
+        function attachNewsListeners() {
+            document.querySelectorAll('.news-vote-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const newsId = btn.dataset.newsId;
+                    const delta = parseInt(btn.dataset.delta);
+                    newsVote(newsId, delta);
+                });
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadVotes();
+            attachResourceListeners();
+            document.getElementById('toggle-resources').addEventListener('click', toggleResources);
+            document.getElementById('refresh-news').addEventListener('click', loadNews);
+            loadNews();
         });
-    }
-
-    function refreshNews() {
-  // Load saved news votes on init
-  
-
-    loadVotes();
-document.addEventListener("DOMContentLoaded", () => {
-  loadNews();
-  updateNewsVotes();
-});
-  // Load saved news votes on init
-  document.addEventListener("DOMContentLoaded", () => {
-    loadNews();
-updateNewsVotes();
- // This will handle vote display on load
-  });
-    loadNews();
-updateNewsVotes();
-
-  </script>
-
+    </script>
 </body>
 </html>
