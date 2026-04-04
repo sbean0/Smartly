@@ -164,171 +164,218 @@
 
         <footer>&copy; 2026 Smartly Academy. Community-powered hub!</footer>
     </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue, child, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getDatabase, ref, onValue, child, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2cJltp_NaPdGWDvxVOShkd65c8fyiwe0",
+      authDomain: "smartly-academy-votes.firebaseapp.com",
+      databaseURL: "https://smartly-academy-votes-default-rtdb.firebaseio.com",
+      projectId: "smartly-academy-votes",
+      storageBucket: "smartly-academy-votes.firebasestorage.app",
+      messagingSenderId: "807796293717",
+      appId: "1:807796293717:web:70a92660377d129e4094dc"
+    };
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyA2cJltp_NaPdGWDvxVOShkd65c8fyiwe0",
-          authDomain: "smartly-academy-votes.firebaseapp.com",
-          databaseURL: "https://smartly-academy-votes-default-rtdb.firebaseio.com",
-          projectId: "smartly-academy-votes",
-          storageBucket: "smartly-academy-votes.firebasestorage.app",
-          messagingSenderId: "807796293717",
-          appId: "1:807796293717:web:70a92660377d129e4094dc"
-        };
+    let db = null;
+    let resourcesRef = null;
+    let newsVotesRef = null;
+    let showAllMode = false;
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    const resources = {
+        'insight-timer': { name: 'Insight Timer', votes: 0 },
+        'headspace-free': { name: 'Headspace Free', votes: 0 },
+        'ucla-mindful': { name: 'UCLA Mindful', votes: 0 },
+        'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
+        'ted-resilience': { name: 'TED Resilience', votes: 0 },
+        'nimh-guides': { name: 'NIMH Guides', votes: 0 },
+        'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
+        'mindful-org': { name: 'Mindful.org', votes: 0 }
+    };
 
-        const resourcesRef = ref(db, 'mentalStrength/resources');
-        const newsVotesRef = ref(db, 'mentalStrength/newsVotes');
-
-        let resources = {
-            'insight-timer': { name: 'Insight Timer', votes: 0 },
-            'headspace-free': { name: 'Headspace Free', votes: 0 },
-            'ucla-mindful': { name: 'UCLA Mindful', votes: 0 },
-            'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
-            'ted-resilience': { name: 'TED Resilience', votes: 0 },
-            'nimh-guides': { name: 'NIMH Guides', votes: 0 },
-            'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
-            'mindful-org': { name: 'Mindful.org', votes: 0 }
-        };
-
-        function loadVotes() {
-            onValue(resourcesRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                Object.keys(resources).forEach(id => resources[id].votes = data[id] || 0);
-                updateAllRatings();
-                sortAndShowResources();
-            });
+    // Initialize Firebase safely
+    async function initFirebase() {
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            resourcesRef = ref(db, 'mentalStrength/resources');
+            newsVotesRef = ref(db, 'mentalStrength/newsVotes');
+            document.getElementById('vote-status').innerHTML = "✅ Community votes are live and shared!";
+            return true;
+        } catch (e) {
+            document.getElementById('vote-status').innerHTML = "⚠️ Votes are shown locally in preview.<br>They will sync live on GitHub Pages.";
+            return false;
         }
+    }
 
-        function vote(id, delta) {
-            if (resources[id]) {
-                const voteRef = child(resourcesRef, id);
-                runTransaction(voteRef, (current) => (current || 0) + delta);
-            }
-        }
+    // Prevent multiple votes from same browser
+    function hasVoted(id) {
+        return localStorage.getItem(`voted_${id}`) === 'true';
+    }
 
-        function updateAllRatings() {
+    function markAsVoted(id) {
+        localStorage.setItem(`voted_${id}`, 'true');
+    }
+
+    function loadVotes() {
+        if (!resourcesRef) return;
+        onValue(resourcesRef, (snapshot) => {
+            const data = snapshot.val() || {};
             Object.keys(resources).forEach(id => {
-                const el = document.getElementById('rating-' + id);
-                if (el) {
-                    const v = resources[id].votes;
-                    el.textContent = `Rating: ${v > 0 ? '+' + v : v}`;
-                }
+                resources[id].votes = data[id] || 0;
             });
-        }
-
-        function sortAndShowResources() {
-            const container = document.querySelector('.section:has(.resource)');
-            if (!container) return;
-            const els = Array.from(container.querySelectorAll('.resource'));
-            els.sort((a, b) => (resources[b.dataset.id]?.votes || 0) - (resources[a.dataset.id]?.votes || 0));
-            els.forEach(el => container.appendChild(el));
-            showTop3();
-        }
-
-        function showTop3() {
-            document.querySelectorAll('.resource').forEach((el, i) => el.style.display = i < 3 ? 'block' : 'none');
-            document.getElementById('toggle-resources').textContent = 'Show All Resources';
-        }
-
-        function showAll() {
-            document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
-            document.getElementById('toggle-resources').textContent = 'Show Top Resources';
-        }
-
-        function toggleResources() {
-            const btn = document.getElementById('toggle-resources');
-            btn.textContent.includes('All') ? showAll() : showTop3();
-        }
-
-        function attachResourceListeners() {
-            document.querySelectorAll('.vote-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.dataset.id;
-                    const delta = parseInt(btn.dataset.delta);
-                    vote(id, delta);
-                });
-            });
-        }
-
-        // === Shared News Voting ===
-        let currentNews = [];
-
-        function loadNews() {
-            // Example news – replace with fetch('news.json') when you have the file
-            currentNews = [
-                {
-                    id: "news1",
-                    title: "How Mindfulness Builds Resilience in 2026",
-                    summary: "New studies show daily mindfulness practice significantly improves mental toughness.",
-                    url: "https://example.com/resilience2026",
-                    date: "April 3, 2026"
-                },
-                {
-                    id: "news2",
-                    title: "The Power of Vulnerability – Brené Brown Update",
-                    summary: "Latest insights on how embracing vulnerability strengthens mental health.",
-                    url: "https://example.com/brene-brown",
-                    date: "April 2, 2026"
-                }
-            ];
-
-            const feed = document.getElementById('news-feed');
-            feed.innerHTML = currentNews.map(article => `
-                <div class="news-item" data-news-id="${article.id}">
-                    <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-                    <p>${article.summary}</p>
-                    <div class="news-date">${article.date}</div>
-                    <div class="news-vote-buttons">
-                        <button class="news-vote-btn up" data-news-id="${article.id}" data-delta="1">👍 <span class="news-vote-count">0</span></button>
-                        <button class="news-vote-btn down" data-news-id="${article.id}" data-delta="-1">👎</button>
-                    </div>
-                </div>
-            `).join('');
-
-            attachNewsListeners();
-            loadNewsVotes();
-        }
-
-        function loadNewsVotes() {
-            onValue(newsVotesRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                document.querySelectorAll('.news-item').forEach(item => {
-                    const id = item.dataset.newsId;
-                    const countEl = item.querySelector('.news-vote-count');
-                    if (countEl) countEl.textContent = data[id] || 0;
-                });
-            });
-        }
-
-        function newsVote(newsId, delta) {
-            const voteRef = child(newsVotesRef, newsId);
-            runTransaction(voteRef, (current) => (current || 0) + delta);
-        }
-
-        function attachNewsListeners() {
-            document.querySelectorAll('.news-vote-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const newsId = btn.dataset.newsId;
-                    const delta = parseInt(btn.dataset.delta);
-                    newsVote(newsId, delta);
-                });
-            });
-        }
-
-        // Initialize
-        window.addEventListener('load', () => {
-            loadVotes();
-            attachResourceListeners();
-            document.getElementById('toggle-resources').addEventListener('click', toggleResources);
-            document.getElementById('refresh-news').addEventListener('click', loadNews);
-            loadNews();
+            updateAllRatings();
+            sortAndShowResources();
+            disableVotedButtons();
         });
-    </script>
+    }
+
+    function vote(id, delta) {
+        if (!resourcesRef || !resources[id] || hasVoted(id)) return;
+
+        const voteRef = child(resourcesRef, id);
+        runTransaction(voteRef, (current) => (current || 0) + delta);
+
+        markAsVoted(id);
+        disableVotedButtons();
+
+        // Optional: small feedback
+        const btns = document.querySelectorAll(`.vote-btn[data-id="${id}"]`);
+        btns.forEach(b => {
+            b.style.opacity = "0.5";
+            b.title = "Thank you for voting!";
+        });
+    }
+
+    function disableVotedButtons() {
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            const id = btn.dataset.id;
+            if (hasVoted(id)) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.title = 'You have already voted';
+            }
+        });
+    }
+
+    function updateAllRatings() {
+        Object.keys(resources).forEach(id => {
+            const el = document.getElementById('rating-' + id);
+            if (el) {
+                const v = resources[id].votes;
+                el.textContent = `Rating: ${v > 0 ? '+' + v : v}`;
+            }
+        });
+    }
+
+    function sortAndShowResources() {
+        const container = document.querySelector('.section:has(.resource)');
+        if (!container) return;
+        const els = Array.from(container.querySelectorAll('.resource'));
+        els.sort((a, b) => (resources[b.dataset.id]?.votes || 0) - (resources[a.dataset.id]?.votes || 0));
+        els.forEach(el => container.appendChild(el));
+
+        showAllMode ? showAll() : showTop3();
+    }
+
+    function showTop3() {
+        document.querySelectorAll('.resource').forEach((el, i) => el.style.display = i < 3 ? 'block' : 'none');
+        document.getElementById('toggle-resources').textContent = 'Show All Resources';
+        showAllMode = false;
+    }
+
+    function showAll() {
+        document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
+        document.getElementById('toggle-resources').textContent = 'Show Top Resources';
+        showAllMode = true;
+    }
+
+    function toggleResources() {
+        showAllMode ? showTop3() : showAll();
+    }
+
+    function attachResourceListeners() {
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const delta = parseInt(btn.dataset.delta);
+                vote(id, delta);
+            });
+        });
+    }
+
+    // ==================== NEWS FEED ====================
+    const sampleNews = [
+        { id: "n1", title: "Daily 10-Minute Meditation Improves Resilience", summary: "A 2026 meta-analysis confirms even short daily mindfulness builds mental strength.", url: "https://www.mindful.org/meditation-resilience/", date: "April 3, 2026" },
+        { id: "n2", title: "Brené Brown on Vulnerability and Mental Toughness", summary: "New talk explores how embracing vulnerability increases resilience.", url: "https://www.ted.com/talks/brene_brown", date: "April 2, 2026" },
+        { id: "n3", title: "WHO Releases New Stress Management Guidelines", summary: "Practical tools for handling modern stressors effectively.", url: "https://www.who.int/health-topics/mental-health", date: "March 30, 2026" }
+    ];
+
+    function loadNews() {
+        const feed = document.getElementById('news-feed');
+        feed.innerHTML = sampleNews.map(article => `
+            <div class="news-item" data-news-id="${article.id}">
+                <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                <p>${article.summary}</p>
+                <div class="news-date">${article.date}</div>
+                <div class="news-vote-buttons">
+                    <button class="news-vote-btn up" data-news-id="${article.id}" data-delta="1">👍 <span class="news-vote-count">0</span></button>
+                    <button class="news-vote-btn down" data-news-id="${article.id}" data-delta="-1">👎</button>
+                </div>
+            </div>
+        `).join('');
+
+        attachNewsListeners();
+        if (newsVotesRef) loadNewsVotes();
+    }
+
+    function loadNewsVotes() {
+        if (!newsVotesRef) return;
+        onValue(newsVotesRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            document.querySelectorAll('.news-item').forEach(item => {
+                const id = item.dataset.newsId;
+                const countEl = item.querySelector('.news-vote-count');
+                if (countEl) countEl.textContent = data[id] || 0;
+            });
+        });
+    }
+
+    function newsVote(newsId, delta) {
+        if (!newsVotesRef) return;
+        const voteRef = child(newsVotesRef, newsId);
+        runTransaction(voteRef, (current) => (current || 0) + delta);
+    }
+
+    function attachNewsListeners() {
+        document.querySelectorAll('.news-vote-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newsId = btn.dataset.newsId;
+                const delta = parseInt(btn.dataset.delta);
+                newsVote(newsId, delta);
+            });
+        });
+    }
+
+    // Initialize everything
+    window.addEventListener('load', async () => {
+        await initFirebase();
+        loadVotes();
+        attachResourceListeners();
+        document.getElementById('toggle-resources').addEventListener('click', toggleResources);
+        document.getElementById('refresh-news').addEventListener('click', loadNews);
+        loadNews();
+    });
+</script>    
+   </div>
+
+    <footer>
+      &copy; 2026 Smartly Academy. All rights reserved.
+      <br><br>
+      <a href="ideas.html" style="color: #666; text-decoration: none; font-size: 0.8rem; border-bottom: 1px dotted #666;">Submit an Idea</a>
+    </footer>
+  </div>
+    
 </body>
 </html>
