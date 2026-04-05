@@ -157,7 +157,13 @@
                 </div>
             </div>
         </div>
- <a href="../ideas.html" style="color: #666; text-decoration: none; font-size: 1rem;">Submit an Idea/Resource</a>
+<!-- NEW: Submit Idea Link - Placed above News Section -->
+        <div style="text-align: center; margin: 20px 0 30px 0;">
+            <a href="../ideas.html" 
+               style="color: #4ade80; text-decoration: none; font-size: 1.05rem; font-weight: 500;">
+                📝 Submit an Idea or New Resource
+            </a>
+        </div>
 
         <div class="section">
             <h2>📰 Daily News Feed</h2>
@@ -170,148 +176,226 @@
            
         </footer>
     </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getDatabase, ref, onValue, child, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getDatabase, ref, onValue, child, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2cJltp_NaPdGWDvxVOShkd65c8fyiwe0",
+      authDomain: "smartly-academy-votes.firebaseapp.com",
+      databaseURL: "https://smartly-academy-votes-default-rtdb.firebaseio.com",
+      projectId: "smartly-academy-votes",
+      storageBucket: "smartly-academy-votes.firebasestorage.app",
+      messagingSenderId: "807796293717",
+      appId: "1:807796293717:web:70a92660377d129e4094dc"
+    };
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyA2cJltp_NaPdGWDvxVOShkd65c8fyiwe0",
-          authDomain: "smartly-academy-votes.firebaseapp.com",
-          databaseURL: "https://smartly-academy-votes-default-rtdb.firebaseio.com",
-          projectId: "smartly-academy-votes",
-          storageBucket: "smartly-academy-votes.firebasestorage.app",
-          messagingSenderId: "807796293717",
-          appId: "1:807796293717:web:70a92660377d129e4094dc"
-        };
+    let db = null;
+    let resourcesRef = null;
+    let newsVotesRef = null;
+    let showAllMode = false;
+    let newsSortMode = "newest";   // "newest" or "popular"
 
-        let db = null;
-        let resourcesRef = null;
-        let newsVotesRef = null;
-        let showAllMode = false;
+    const resources = {
+        'insight-timer': { name: 'Insight Timer', votes: 0 },
+        'headspace-free': { name: 'Headspace Free', votes: 0 },
+        'ucla-mindful': { name: 'UCLA Mindful', votes: 0 },
+        'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
+        'ted-resilience': { name: 'TED Resilience', votes: 0 },
+        'nimh-guides': { name: 'NIMH Guides', votes: 0 },
+        'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
+        'mindful-org': { name: 'Mindful.org', votes: 0 }
+    };
 
-        const resources = {
-            'insight-timer': { name: 'Insight Timer', votes: 0 },
-            'headspace-free': { name: 'Headspace Free', votes: 0 },
-            'ucla-mindful': { name: 'UCLA Mindful', votes: 0 },
-            'positivepsychology': { name: 'PositivePsychology.com', votes: 0 },
-            'ted-resilience': { name: 'TED Resilience', votes: 0 },
-            'nimh-guides': { name: 'NIMH Guides', votes: 0 },
-            'who-mental-health': { name: 'WHO Mental Health', votes: 0 },
-            'mindful-org': { name: 'Mindful.org', votes: 0 }
-        };
-
-        async function initFirebase() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getDatabase(app);
-                resourcesRef = ref(db, 'mentalStrength/resources');
-                newsVotesRef = ref(db, 'mentalStrength/newsVotes');
-                document.getElementById('vote-status').innerHTML = "✅ Community votes are live and shared!";
-                return true;
-            } catch (e) {
-                document.getElementById('vote-status').innerHTML = "⚠️ Votes shown locally in preview.<br>They will sync on GitHub Pages.";
-                return false;
-            }
+    async function initFirebase() {
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            resourcesRef = ref(db, 'mentalStrength/resources');
+            newsVotesRef = ref(db, 'mentalStrength/newsVotes');
+            document.getElementById('vote-status').innerHTML = "✅ Community votes are live and shared!";
+            return true;
+        } catch (e) {
+            document.getElementById('vote-status').innerHTML = "⚠️ Votes shown locally in preview.<br>They will sync on GitHub Pages.";
+            return false;
         }
+    }
 
-        function hasVoted(id) { return localStorage.getItem(`voted_${id}`) === 'true'; }
-        function markAsVoted(id) { localStorage.setItem(`voted_${id}`, 'true'); }
+    // Resource voting functions (same as before)
+    function hasVoted(id) { return localStorage.getItem(`voted_${id}`) === 'true'; }
+    function markAsVoted(id) { localStorage.setItem(`voted_${id}`, 'true'); }
 
-        function loadVotes() {
-            if (!resourcesRef) return;
-            onValue(resourcesRef, (snapshot) => {
-                const data = snapshot.val() || {};
-                Object.keys(resources).forEach(id => resources[id].votes = data[id] || 0);
-                updateAllRatings();
-                sortAndShowResources();
-                disableVotedButtons();
-            }, (error) => {
-                console.error("Firebase read error (check rules!):", error);
-                document.getElementById('vote-status').innerHTML = "❌ Permission error. Check Firebase Rules.";
-            });
-        }
-
-        function vote(id, delta) {
-            if (!resourcesRef || !resources[id] || hasVoted(id)) return;
-            const voteRef = child(resourcesRef, id);
-            runTransaction(voteRef, (current) => (current || 0) + delta);
-            markAsVoted(id);
+    function loadVotes() {
+        if (!resourcesRef) return;
+        onValue(resourcesRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            Object.keys(resources).forEach(id => resources[id].votes = data[id] || 0);
+            updateAllRatings();
+            sortAndShowResources();
             disableVotedButtons();
-        }
-
-        function disableVotedButtons() {
-            document.querySelectorAll('.vote-btn').forEach(btn => {
-                if (hasVoted(btn.dataset.id)) {
-                    btn.disabled = true;
-                    btn.style.opacity = '0.5';
-                    btn.title = 'You have already voted';
-                }
-            });
-        }
-
-        function updateAllRatings() {
-            Object.keys(resources).forEach(id => {
-                const el = document.getElementById('rating-' + id);
-                if (el) {
-                    const v = resources[id].votes;
-                    el.textContent = `Rating: ${v > 0 ? '+' + v : v}`;
-                }
-            });
-        }
-
-        function sortAndShowResources() {
-            const container = document.querySelector('.section:has(.resource)');
-            if (!container) return;
-            const els = Array.from(container.querySelectorAll('.resource'));
-            els.sort((a, b) => (resources[b.dataset.id]?.votes || 0) - (resources[a.dataset.id]?.votes || 0));
-            els.forEach(el => container.appendChild(el));
-            showAllMode ? showAll() : showTop3();
-        }
-
-        function showTop3() {
-            document.querySelectorAll('.resource').forEach((el, i) => el.style.display = i < 3 ? 'block' : 'none');
-            document.getElementById('toggle-resources').textContent = 'Show All Resources';
-            showAllMode = false;
-        }
-
-        function showAll() {
-            document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
-            document.getElementById('toggle-resources').textContent = 'Show Top Resources';
-            showAllMode = true;
-        }
-
-        function toggleResources() {
-            showAllMode ? showTop3() : showAll();
-        }
-
-        function attachResourceListeners() {
-            document.querySelectorAll('.vote-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.dataset.id;
-                    const delta = parseInt(btn.dataset.delta);
-                    vote(id, delta);
-                });
-            });
-        }
-
-        // News feed (unchanged from last version)
-        const sampleNews = [ /* your 3 news items */ ];
-
-        function loadNews() { /* same as before */ }
-        function loadNewsVotes() { /* same */ }
-        function newsVote(newsId, delta) { /* same */ }
-        function attachNewsListeners() { /* same */ }
-
-        // Initialize
-        window.addEventListener('load', async () => {
-            await initFirebase();
-            loadVotes();
-            attachResourceListeners();
-            document.getElementById('toggle-resources').addEventListener('click', toggleResources);
-            document.getElementById('refresh-news').addEventListener('click', loadNews);
-            loadNews();
         });
-    </script>
+    }
+
+    function vote(id, delta) {
+        if (!resourcesRef || !resources[id] || hasVoted(id)) return;
+        const voteRef = child(resourcesRef, id);
+        runTransaction(voteRef, (current) => (current || 0) + delta);
+        markAsVoted(id);
+        disableVotedButtons();
+    }
+
+    function disableVotedButtons() {
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            if (hasVoted(btn.dataset.id)) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.title = 'You have already voted';
+            }
+        });
+    }
+
+    function updateAllRatings() {
+        Object.keys(resources).forEach(id => {
+            const el = document.getElementById('rating-' + id);
+            if (el) {
+                const v = resources[id].votes;
+                el.textContent = `Rating: ${v > 0 ? '+' + v : v}`;
+            }
+        });
+    }
+
+    function sortAndShowResources() {
+        const container = document.querySelector('.section:has(.resource)');
+        if (!container) return;
+        const els = Array.from(container.querySelectorAll('.resource'));
+        els.sort((a, b) => (resources[b.dataset.id]?.votes || 0) - (resources[a.dataset.id]?.votes || 0));
+        els.forEach(el => container.appendChild(el));
+        showAllMode ? showAll() : showTop3();
+    }
+
+    function showTop3() {
+        document.querySelectorAll('.resource').forEach((el, i) => el.style.display = i < 3 ? 'block' : 'none');
+        document.getElementById('toggle-resources').textContent = 'Show All Resources';
+        showAllMode = false;
+    }
+
+    function showAll() {
+        document.querySelectorAll('.resource').forEach(el => el.style.display = 'block');
+        document.getElementById('toggle-resources').textContent = 'Show Top Resources';
+        showAllMode = true;
+    }
+
+    function toggleResources() {
+        showAllMode ? showTop3() : showAll();
+    }
+
+    function attachResourceListeners() {
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const delta = parseInt(btn.dataset.delta);
+                vote(id, delta);
+            });
+        });
+    }
+
+    // ==================== NEWS FEED WITH SORTING ====================
+    let currentArticles = [];
+
+    function loadNews() {
+        fetch('news.json')
+            .then(response => response.ok ? response.json() : Promise.reject())
+            .then(data => {
+                currentArticles = data.articles || [];
+                renderNews();
+                if (newsVotesRef) loadNewsVotes();
+            })
+            .catch(() => {
+                document.getElementById('news-feed').innerHTML = `<p>No news available right now.</p>`;
+            });
+    }
+
+    function renderNews() {
+        const feed = document.getElementById('news-feed');
+        let sorted = [...currentArticles];
+
+        if (newsSortMode === "popular") {
+            sorted.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+        }
+
+        feed.innerHTML = sorted.map(article => `
+            <div class="news-item" data-news-id="${article.id}">
+                <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                <p>${article.summary}</p>
+                <div class="news-date">${article.date}</div>
+                <div class="news-vote-buttons">
+                    <button class="news-vote-btn up" data-news-id="${article.id}" data-delta="1">👍 <span class="news-vote-count">${article.votes || 0}</span></button>
+                    <button class="news-vote-btn down" data-news-id="${article.id}" data-delta="-1">👎</button>
+                </div>
+            </div>
+        `).join('');
+
+        attachNewsListeners();
+    }
+
+    function loadNewsVotes() {
+        if (!newsVotesRef) return;
+        onValue(newsVotesRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            currentArticles.forEach(article => {
+                article.votes = data[article.id] || 0;
+            });
+            renderNews();
+        });
+    }
+
+    function newsVote(newsId, delta) {
+        if (!newsVotesRef) return;
+        const voteRef = child(newsVotesRef, newsId);
+        runTransaction(voteRef, (current) => (current || 0) + delta);
+    }
+
+    function attachNewsListeners() {
+        document.querySelectorAll('.news-vote-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newsId = btn.dataset.newsId;
+                const delta = parseInt(btn.dataset.delta);
+                newsVote(newsId, delta);
+            });
+        });
+    }
+
+    function toggleNewsSort() {
+        newsSortMode = newsSortMode === "newest" ? "popular" : "newest";
+        const btn = document.getElementById('sort-news');
+        btn.textContent = newsSortMode === "popular" ? "Sort by Newest" : "Sort by Popularity";
+        renderNews();
+    }
+
+    // Initialize
+    window.addEventListener('load', async () => {
+        await initFirebase();
+        loadVotes();
+        attachResourceListeners();
+        document.getElementById('toggle-resources').addEventListener('click', toggleResources);
+        document.getElementById('refresh-news').addEventListener('click', loadNews);
+
+        // Add Sort button
+        const sortBtn = document.createElement('button');
+        sortBtn.id = "sort-news";
+        sortBtn.textContent = "Sort by Popularity";
+        sortBtn.style.marginLeft = "10px";
+        sortBtn.style.background = "#4ade80";
+        sortBtn.style.color = "#000";
+        sortBtn.style.border = "none";
+        sortBtn.style.padding = "8px 12px";
+        sortBtn.style.borderRadius = "4px";
+        sortBtn.style.cursor = "pointer";
+        sortBtn.addEventListener('click', toggleNewsSort);
+        document.getElementById('refresh-news').after(sortBtn);
+
+        loadNews();
+    });
+</script>
 </body>
 </html>
