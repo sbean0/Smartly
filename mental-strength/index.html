@@ -196,6 +196,7 @@
     let showAllMode = false;
     let newsSortMode = "newest";      // "newest" or "popular"
     let newsTimeFilter = "all";       // "all", "week", "month"
+    let searchTerm = "";
 
     const resources = {
         'insight-timer': { name: 'Insight Timer', votes: 0 },
@@ -222,7 +223,7 @@
         }
     }
 
-    // === Resource voting (unchanged) ===
+    // Resource voting (unchanged)
     function hasVoted(id) { return localStorage.getItem(`voted_${id}`) === 'true'; }
     function markAsVoted(id) { localStorage.setItem(`voted_${id}`, 'true'); }
 
@@ -300,7 +301,7 @@
         });
     }
 
-    // ==================== NEWS FEED WITH FILTERS & SORT ====================
+    // ==================== NEWS FEED WITH SEARCH + FILTERS + SORT ====================
     let currentArticles = [];
 
     function loadNews() {
@@ -318,6 +319,15 @@
 
     function getFilteredAndSortedArticles() {
         let filtered = [...currentArticles];
+
+        // Search filter
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(article => 
+                article.title.toLowerCase().includes(term) || 
+                article.summary.toLowerCase().includes(term)
+            );
+        }
 
         // Time filter
         const now = new Date();
@@ -340,6 +350,11 @@
     function renderNews() {
         const articlesToShow = getFilteredAndSortedArticles();
         const feed = document.getElementById('news-feed');
+
+        if (articlesToShow.length === 0) {
+            feed.innerHTML = `<p style="color:#888; text-align:center;">No matching news found.</p>`;
+            return;
+        }
 
         feed.innerHTML = articlesToShow.map(article => `
             <div class="news-item" data-news-id="${article.id}">
@@ -383,6 +398,12 @@
         });
     }
 
+    // Search handler
+    function handleSearch(e) {
+        searchTerm = e.target.value.trim();
+        renderNews();
+    }
+
     // Toggle sort
     function toggleNewsSort() {
         newsSortMode = newsSortMode === "newest" ? "popular" : "newest";
@@ -393,7 +414,6 @@
     // Time filter
     function setTimeFilter(filter) {
         newsTimeFilter = filter;
-        // Highlight active button
         document.querySelectorAll('.time-filter-btn').forEach(btn => {
             btn.style.background = btn.dataset.filter === filter ? "#4ade80" : "#1e1e1e";
             btn.style.color = btn.dataset.filter === filter ? "#000" : "#4ade80";
@@ -408,6 +428,18 @@
         attachResourceListeners();
         document.getElementById('toggle-resources').addEventListener('click', toggleResources);
         document.getElementById('refresh-news').addEventListener('click', loadNews);
+
+        // Search input
+        const searchContainer = document.createElement('div');
+        searchContainer.style.margin = "15px 0";
+        searchContainer.innerHTML = `
+            <input type="text" id="news-search" placeholder="Search news..." 
+                   style="width:100%; padding:10px; border-radius:6px; border:none; background:#1e1e1e; color:#e0e0e0; font-size:1rem;">
+        `;
+        const newsHeader = document.querySelector('#news-feed').parentElement.querySelector('h2').parentElement;
+        newsHeader.appendChild(searchContainer);
+
+        document.getElementById('news-search').addEventListener('input', handleSearch);
 
         // Sort button
         const sortBtn = document.createElement('button');
@@ -433,7 +465,6 @@
         `;
         document.getElementById('refresh-news').parentElement.appendChild(filterContainer);
 
-        // Attach filter listeners
         filterContainer.querySelectorAll('.time-filter-btn').forEach(btn => {
             btn.addEventListener('click', () => setTimeFilter(btn.dataset.filter));
         });
