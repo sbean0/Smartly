@@ -194,7 +194,8 @@
     let resourcesRef = null;
     let newsVotesRef = null;
     let showAllMode = false;
-    let newsSortMode = "newest";   // "newest" or "popular"
+    let newsSortMode = "newest";      // "newest" or "popular"
+    let newsTimeFilter = "all";       // "all", "week", "month"
 
     const resources = {
         'insight-timer': { name: 'Insight Timer', votes: 0 },
@@ -221,7 +222,7 @@
         }
     }
 
-    // Resource voting functions (same as before)
+    // === Resource voting (unchanged) ===
     function hasVoted(id) { return localStorage.getItem(`voted_${id}`) === 'true'; }
     function markAsVoted(id) { localStorage.setItem(`voted_${id}`, 'true'); }
 
@@ -299,7 +300,7 @@
         });
     }
 
-    // ==================== NEWS FEED WITH SORTING ====================
+    // ==================== NEWS FEED WITH FILTERS & SORT ====================
     let currentArticles = [];
 
     function loadNews() {
@@ -315,15 +316,32 @@
             });
     }
 
-    function renderNews() {
-        const feed = document.getElementById('news-feed');
-        let sorted = [...currentArticles];
+    function getFilteredAndSortedArticles() {
+        let filtered = [...currentArticles];
 
-        if (newsSortMode === "popular") {
-            sorted.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+        // Time filter
+        const now = new Date();
+        if (newsTimeFilter === "week") {
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            filtered = filtered.filter(article => new Date(article.date) >= oneWeekAgo);
+        } else if (newsTimeFilter === "month") {
+            const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            filtered = filtered.filter(article => new Date(article.date) >= oneMonthAgo);
         }
 
-        feed.innerHTML = sorted.map(article => `
+        // Sort
+        if (newsSortMode === "popular") {
+            filtered.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+        }
+
+        return filtered;
+    }
+
+    function renderNews() {
+        const articlesToShow = getFilteredAndSortedArticles();
+        const feed = document.getElementById('news-feed');
+
+        feed.innerHTML = articlesToShow.map(article => `
             <div class="news-item" data-news-id="${article.id}">
                 <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
                 <p>${article.summary}</p>
@@ -365,10 +383,21 @@
         });
     }
 
+    // Toggle sort
     function toggleNewsSort() {
         newsSortMode = newsSortMode === "newest" ? "popular" : "newest";
-        const btn = document.getElementById('sort-news');
-        btn.textContent = newsSortMode === "popular" ? "Sort by Newest" : "Sort by Popularity";
+        document.getElementById('sort-news').textContent = newsSortMode === "popular" ? "Sort by Newest" : "Sort by Popularity";
+        renderNews();
+    }
+
+    // Time filter
+    function setTimeFilter(filter) {
+        newsTimeFilter = filter;
+        // Highlight active button
+        document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.style.background = btn.dataset.filter === filter ? "#4ade80" : "#1e1e1e";
+            btn.style.color = btn.dataset.filter === filter ? "#000" : "#4ade80";
+        });
         renderNews();
     }
 
@@ -380,7 +409,7 @@
         document.getElementById('toggle-resources').addEventListener('click', toggleResources);
         document.getElementById('refresh-news').addEventListener('click', loadNews);
 
-        // Add Sort button
+        // Sort button
         const sortBtn = document.createElement('button');
         sortBtn.id = "sort-news";
         sortBtn.textContent = "Sort by Popularity";
@@ -393,6 +422,21 @@
         sortBtn.style.cursor = "pointer";
         sortBtn.addEventListener('click', toggleNewsSort);
         document.getElementById('refresh-news').after(sortBtn);
+
+        // Time filter buttons
+        const filterContainer = document.createElement('div');
+        filterContainer.style.marginTop = "10px";
+        filterContainer.innerHTML = `
+            <button class="time-filter-btn" data-filter="all" style="background:#4ade80;color:#000;">All Time</button>
+            <button class="time-filter-btn" data-filter="week" style="margin-left:5px;">Past Week</button>
+            <button class="time-filter-btn" data-filter="month" style="margin-left:5px;">Past Month</button>
+        `;
+        document.getElementById('refresh-news').parentElement.appendChild(filterContainer);
+
+        // Attach filter listeners
+        filterContainer.querySelectorAll('.time-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => setTimeFilter(btn.dataset.filter));
+        });
 
         loadNews();
     });
