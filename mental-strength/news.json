@@ -1,5 +1,28 @@
 {
   "articles": [
+
+    {
+      "id": "n1",
+      "title": "Daily 10-Minute Meditation Improves Resilience",
+      "summary": "A 2026 meta-analysis confirms even short daily mindfulness builds mental strength.",
+      "url": "https://www.mindful.org/meditation-resilience/",
+      "date": "April 3, 2026"
+    },
+    {
+      "id": "n2",
+      "title": "Brené Brown on Vulnerability and Mental Toughness",
+      "summary": "New talk explores how embracing vulnerability increases resilience.",
+      "url": "https://www.ted.com/talks/brene_brown",
+      "date": "April 2, 2026"
+    },
+    {
+      "id": "n3",
+      "title": "WHO Releases New Stress Management Guidelines",
+      "summary": "Practical tools for handling modern stressors effectively.",
+      "url": "https://www.who.int/health-topics/mental-health",
+      "date": "March 30, 2026"
+    },
+    
     {
       "title": "Simple Brain Training Cuts Dementia Risk Decades Later",
       "summary": "Specific speed-of-processing exercises reduce dementia risk years after training ends.",
