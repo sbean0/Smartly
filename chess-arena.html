@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smartly Academy — Chess Arena</title>
-  
+ 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.base.css">
   <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.brown.css">
   <link rel="stylesheet" href="https://unpkg.com/chessground@9.2.1/assets/chessground.cburnett.css">
-
+  
   <style>
     * { box-sizing: border-box; }
     body {
@@ -27,7 +27,6 @@
     header { text-align: center; margin-bottom: 1rem; }
     h1 { margin: 0; font-weight: 600; font-size: 1.5rem; }
     p.subtitle { color: #888; font-size: 0.9rem; margin-top: 0.2rem; }
-
     #board-container {
       width: 100%;
       max-width: 450px;
@@ -36,7 +35,6 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .cg-wrap { width: 100%; height: 100%; }
-
     .panel {
       width: 100%; max-width: 450px;
       background: #1e1e1e; padding: 1.5rem;
@@ -45,8 +43,6 @@
       display: none;
     }
     .panel.show { display: block; }
-
-    /* Buttons */
     .btn {
       background: #4ade80; color: #000; border: none;
       padding: 0.8rem 1.5rem; border-radius: 6px; font-weight: 600;
@@ -57,16 +53,12 @@
     .btn:hover { background: #22c55e; }
     .btn-secondary { background: #333; color: #fff; }
     .btn-secondary:hover { background: #444; }
-
-    /* Inputs */
     .link-box {
       width: 100%; background: #121212; color: #4ade80;
       border: 1px solid #444; padding: 0.8rem;
       font-family: monospace; border-radius: 4px;
       margin-top: 0.5rem; font-size: 0.85rem;
     }
-
-    /* Status & Coach */
     .status-text {
       margin-top: 0.5rem; font-family: monospace; color: #aaa; font-size: 0.9rem;
     }
@@ -74,13 +66,11 @@
       background: #2a2a2a; color: #eab308;
       padding: 0.8rem; border-radius: 6px;
       margin-top: 1rem; font-style: italic;
-      display: none;
       border-left: 3px solid #eab308;
     }
   </style>
 </head>
 <body>
-
   <header>
     <h1>Smartly Arena</h1>
     <p class="subtitle">Multiplayer & AI Training</p>
@@ -95,7 +85,7 @@
     <div id="board" class="cg-wrap"></div>
   </div>
 
-  <!-- Setup Menu (Mode Selection) -->
+  <!-- Setup Menu -->
   <div id="setup-menu" class="panel show">
     <h3 style="margin-top:0; color:#fff;">Choose Mode</h3>
     <button id="btn-play-bot" class="btn">🤖 Play vs Coach AI</button>
@@ -103,422 +93,410 @@
     <div id="network-status" class="status-text">Initializing network...</div>
   </div>
 
-  <!-- Invite Friend UI -->
+  <!-- Invite Friend -->
   <div id="invite-area" class="panel">
     <p style="margin:0; font-size:0.9rem; color:#ccc;">Send this link to your friend:</p>
     <div style="display:flex; gap:5px;">
-        <input type="text" id="invite-link" class="link-box" readonly onclick="this.select()">
-        <button id="btn-copy-link" class="btn btn-secondary" style="width:auto; margin-top:0.5rem; padding:0.5rem 1rem;">Copy</button>
+      <input type="text" id="invite-link" class="link-box" readonly onclick="this.select()">
+      <button id="btn-copy-link" class="btn btn-secondary" style="width:auto; margin-top:0.5rem; padding:0.5rem 1rem;">Copy</button>
     </div>
     <div style="margin-top:0.5rem; color:#eab308; font-size:0.8rem;">Waiting for opponent...</div>
     <button id="btn-cancel-invite" class="btn btn-secondary" style="margin-top:1rem;">Cancel</button>
   </div>
 
-  <!-- Game UI (Active Game) -->
+  <!-- Game UI -->
   <div id="game-ui" class="panel">
     <div id="game-status" class="status-text">Good luck!</div>
     <div style="display:flex; justify-content:center; gap:10px; margin-top:0.5rem;">
-        <label style="color:#888; font-size:0.8rem; display:flex; align-items:center;">
-            <input type="checkbox" id="check-sound" checked> Sound
-        </label>
+      <label style="color:#888; font-size:0.8rem; display:flex; align-items:center;">
+        <input type="checkbox" id="check-sound" checked> Sound
+      </label>
     </div>
     <div id="coach-box" class="coach-msg"></div>
     <div id="coach-controls" style="display:none; margin-top:0.5rem;">
-        <button id="btn-hint" class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem;">💡 Ask Coach for Hint</button>
+      <button id="btn-hint" class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem;">💡 Ask Coach for Hint</button>
     </div>
     <button id="btn-new-game" class="btn btn-secondary" style="margin-top:1rem; display:none;">New Game</button>
   </div>
 
-  <!-- Libraries -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-  
+ 
   <script type="module">
     import { Chessground } from 'https://unpkg.com/chessground@9.2.1/dist/chessground.js';
 
-    // --- State ---
-    let game = new Chess();
-    let board = null;
-    let peer = null;
-    let conn = null;
-    let myColor = 'white'; 
-    let gameMode = 'none'; 
-    let isGameActive = false;
-    let stockfish = null;
+    // ====================== STATE ======================
+    const state = {
+      game: new Chess(),
+      board: null,
+      peer: null,
+      conn: null,
+      myColor: 'white',
+      gameMode: 'none', // 'bot' or 'p2p'
+      isGameActive: false,
+      stockfish: null,
+      audioCtx: null
+    };
 
-    // --- UI Elements ---
-    const setupMenu = document.getElementById('setup-menu');
-    const inviteArea = document.getElementById('invite-area');
-    const gameUI = document.getElementById('game-ui');
-    const gameStatusEl = document.getElementById('game-status');
-    const coachBox = document.getElementById('coach-box');
-    const coachControls = document.getElementById('coach-controls');
-    const btnPlayBot = document.getElementById('btn-play-bot');
-    const btnPlayFriend = document.getElementById('btn-play-friend');
-    const inviteInput = document.getElementById('invite-link');
-    const btnCopyLink = document.getElementById('btn-copy-link');
-    const btnNewGame = document.getElementById('btn-new-game');
-    const btnCancelInvite = document.getElementById('btn-cancel-invite');
-    const networkStatus = document.getElementById('network-status');
-    const btnHint = document.getElementById('btn-hint');
-    const checkSound = document.getElementById('check-sound');
-    
-    // --- Audio System (Synth) ---
-    // Use Web Audio API for reliable, self-contained sound
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioContext();
-    
-    function playSound(isCapture) {
-        if(!checkSound.checked) return;
-        if(ctx.state === 'suspended') ctx.resume();
-        
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        
-        if (isCapture) {
-            // Capture: Sharp high-pitch "Crack"
-            osc.frequency.setValueAtTime(600, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.5, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-            osc.type = 'square';
-        } else {
-            // Move: Soft wooden "Thud"
-            osc.frequency.setValueAtTime(200, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.3, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-            osc.type = 'triangle';
-        }
-        
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.15);
+    // ====================== DOM ELEMENTS ======================
+    const els = {
+      setupMenu: document.getElementById('setup-menu'),
+      inviteArea: document.getElementById('invite-area'),
+      gameUI: document.getElementById('game-ui'),
+      gameStatus: document.getElementById('game-status'),
+      coachBox: document.getElementById('coach-box'),
+      coachControls: document.getElementById('coach-controls'),
+      btnPlayBot: document.getElementById('btn-play-bot'),
+      btnPlayFriend: document.getElementById('btn-play-friend'),
+      inviteLink: document.getElementById('invite-link'),
+      btnCopyLink: document.getElementById('btn-copy-link'),
+      btnCancelInvite: document.getElementById('btn-cancel-invite'),
+      btnNewGame: document.getElementById('btn-new-game'),
+      btnHint: document.getElementById('btn-hint'),
+      checkSound: document.getElementById('check-sound'),
+      networkStatus: document.getElementById('network-status')
+    };
+
+    // ====================== AUDIO ======================
+    function initAudio() {
+      if (!state.audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        state.audioCtx = new AudioContext();
+      }
     }
 
-    // --- Initialization ---
-    peer = new Peer({ debug: 1 });
-    
-    peer.on('open', (id) => {
-      console.log('My Peer ID:', id);
-      networkStatus.innerText = "Network Ready.";
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const hostId = urlParams.get('game');
-      if (hostId) {
-        joinP2PGame(hostId);
-      }
-    });
+    function playSound(isCapture) {
+      if (!els.checkSound.checked || !state.audioCtx) return;
+      if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
 
-    peer.on('connection', (c) => {
-      if (gameMode !== 'p2p_waiting') { c.close(); return; }
-      conn = c;
-      setupP2PConnection();
-      startGame('p2p', 'white');
-      setTimeout(() => conn.send({ type: 'start', color: 'black' }), 500);
-    });
+      const osc = state.audioCtx.createOscillator();
+      const gain = state.audioCtx.createGain();
 
-    // --- Mode Selection ---
-    btnPlayBot.addEventListener('click', () => {
-      // Unlock Audio on Start
-      if(ctx.state === 'suspended') ctx.resume();
-      
-      initStockfish();
-      startGame('bot', 'white');
-    });
-
-    btnPlayFriend.addEventListener('click', () => {
-      // Unlock Audio on Start
-      if(ctx.state === 'suspended') ctx.resume();
-      
-      gameMode = 'p2p_waiting';
-      const link = window.location.href.split('?')[0] + "?game=" + peer.id;
-      inviteInput.value = link;
-      setupMenu.classList.remove('show');
-      inviteArea.classList.add('show');
-    });
-    
-    btnCopyLink.addEventListener('click', () => {
-        inviteInput.select();
-        navigator.clipboard.writeText(inviteInput.value).then(() => {
-            const originalText = btnCopyLink.innerText;
-            btnCopyLink.innerText = "Copied!";
-            btnCopyLink.style.background = "#22c55e";
-            btnCopyLink.style.color = "#000";
-            setTimeout(() => {
-                btnCopyLink.innerText = originalText;
-                btnCopyLink.style.background = "#333";
-                btnCopyLink.style.color = "#fff";
-            }, 2000);
-        });
-    });
-    
-    btnCancelInvite.addEventListener('click', () => {
-        location.reload();
-    });
-    
-    btnNewGame.addEventListener('click', () => {
-        location.reload();
-    });
-
-    btnHint.addEventListener('click', askCoachForHint);
-
-    // --- Game Logic ---
-    function startGame(mode, color) {
-      gameMode = mode;
-      myColor = color;
-      isGameActive = true;
-      game.reset();
-
-      setupMenu.classList.remove('show');
-      inviteArea.classList.remove('show');
-      gameUI.classList.add('show');
-      
-      if(mode === 'bot') {
-          coachBox.style.display = 'block';
-          coachControls.style.display = 'block';
-          coachBox.innerText = "Coach: Good luck! Control the center.";
+      if (isCapture) {
+        osc.frequency.setValueAtTime(600, state.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, state.audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.5, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.1);
+        osc.type = 'square';
       } else {
-          coachBox.style.display = 'none';
-          coachControls.style.display = 'none';
+        osc.frequency.setValueAtTime(200, state.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, state.audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, state.audioCtx.currentTime + 0.1);
+        osc.type = 'triangle';
+      }
+
+      osc.connect(gain);
+      gain.connect(state.audioCtx.destination);
+      osc.start();
+      osc.stop(state.audioCtx.currentTime + 0.15);
+    }
+
+    // ====================== BOARD HELPERS ======================
+    function getLegalDests() {
+      const dests = new Map();
+      const squares = ['a','b','c','d','e','f','g','h'];
+      for (let f of squares) {
+        for (let r = 1; r <= 8; r++) {
+          const sq = f + r;
+          const moves = state.game.moves({ square: sq, verbose: true });
+          if (moves.length) {
+            dests.set(sq, moves.map(m => m.to));
+          }
+        }
+      }
+      return dests;
+    }
+
+    function updateBoard() {
+      if (!state.board) return;
+      const isMyTurn = state.game.turn() === state.myColor[0];
+      
+      state.board.set({
+        fen: state.game.fen(),
+        turnColor: isMyTurn ? state.myColor : 'grey',
+        movable: {
+          color: isMyTurn ? state.myColor : null,
+          dests: isMyTurn ? getLegalDests() : new Map(),
+          events: { after: onUserMove }
+        }
+      });
+    }
+
+    function onUserMove(orig, dest) {
+      if (!state.isGameActive || state.game.turn() !== state.myColor[0]) return;
+
+      const move = state.game.move({ from: orig, to: dest, promotion: 'q' });
+      if (!move) return;
+
+      playSound(!!move.captured);
+      updateBoard();
+      updateStatus();
+
+      // Clear hint arrows
+      state.board.set({ drawable: { shapes: [] } });
+
+      if (state.gameMode === 'p2p' && state.conn && state.conn.open) {
+        state.conn.send({ type: 'move', from: orig, to: dest });
+      } else if (state.gameMode === 'bot') {
+        els.gameStatus.innerText = "Coach is thinking...";
+        giveCoachingFeedback(move);
+        makeBotMove();
+      }
+    }
+
+    // ====================== GAME STATUS & COACH ======================
+    function updateStatus() {
+      if (state.game.game_over()) {
+        state.isGameActive = false;
+        els.btnNewGame.style.display = 'inline-block';
+        
+        if (state.game.in_checkmate()) {
+          const winner = state.game.turn() === 'w' ? 'Black' : 'White';
+          els.gameStatus.innerText = `Checkmate! ${winner} Wins!`;
+        } else {
+          els.gameStatus.innerText = "Game Over.";
+        }
+        return;
+      }
+
+      const isMyTurn = state.game.turn() === state.myColor[0];
+      els.gameStatus.innerText = isMyTurn 
+        ? "Your Turn" 
+        : `Waiting for ${state.gameMode === 'bot' ? 'Coach AI' : 'Opponent'}`;
+    }
+
+    function giveCoachingFeedback(move) {
+      let msg = "";
+      if (move.flags.includes('e')) msg = "Ah! En Passant. A rare and beautiful capture.";
+      else if (move.flags.includes('p')) msg = "Promotion! Use your new power wisely.";
+      else if (move.san === 'O-O' || move.san === 'O-O-O') msg = "Good decision. King safety is priority.";
+      else if (move.captured) msg = "Good capture! Material advantage.";
+      else if (state.game.in_check()) msg = "Aggressive! They are under pressure.";
+      else if (move.san.includes('#')) msg = "Checkmate! Excellent execution.";
+      else {
+        const turnCount = state.game.history().length;
+        if (turnCount < 6) msg = "Solid opening. Develop your pieces.";
+        else if (turnCount < 20 && Math.random() > 0.8) msg = "Watch the diagonals.";
+        else if (Math.random() > 0.8) msg = "Every pawn counts.";
+      }
+
+      if (msg) els.coachBox.innerText = "Coach: " + msg;
+    }
+
+    // ====================== BOT / STOCKFISH ======================
+    function initStockfish() {
+      try {
+        const blob = new Blob([`
+          importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js');
+        `], { type: 'application/javascript' });
+
+        state.stockfish = new Worker(URL.createObjectURL(blob));
+
+        state.stockfish.onmessage = (event) => {
+          const msg = event.data;
+          if (typeof msg !== 'string' || !msg.includes('bestmove')) return;
+
+          const parts = msg.split(' ');
+          const bestMove = parts[parts.indexOf('bestmove') + 1];
+          if (!bestMove || bestMove === '(none)') return;
+
+          const from = bestMove.substring(0, 2);
+          const to = bestMove.substring(2, 4);
+
+          // If it's the bot's turn (not user's), make the move
+          if (state.game.turn() !== state.myColor[0]) {
+            setTimeout(() => {
+              const moveRes = state.game.move({ from, to, promotion: 'q' });
+              if (moveRes) playSound(!!moveRes.captured);
+              updateBoard();
+              updateStatus();
+              state.board.set({ drawable: { shapes: [] } });
+            }, 800);
+          } 
+          // Otherwise it's a hint request
+          else {
+            els.coachBox.innerText = `Coach: Consider moving ${from} to ${to}.`;
+            state.board.set({
+              drawable: { shapes: [{ brush: 'green', orig: from, dest: to }] }
+            });
+          }
+        };
+
+        state.stockfish.postMessage('uci');
+      } catch (e) {
+        console.warn("Stockfish init failed — falling back to random moves", e);
+      }
+    }
+
+    function makeBotMove() {
+      if (state.stockfish) {
+        state.stockfish.postMessage('position fen ' + state.game.fen());
+        state.stockfish.postMessage('go depth 10');
+      } else {
+        // Fallback random
+        const moves = state.game.moves({ verbose: true });
+        if (moves.length === 0) return;
+        const randomMove = moves[Math.floor(Math.random() * moves.length)];
+        const moveRes = state.game.move(randomMove);
+        if (moveRes) playSound(!!moveRes.captured);
+        updateBoard();
+        updateStatus();
+      }
+    }
+
+    function askCoachForHint() {
+      if (!state.isGameActive || state.gameMode !== 'bot') return;
+      els.coachBox.innerText = "Coach is analyzing...";
+
+      if (state.stockfish) {
+        state.stockfish.postMessage('position fen ' + state.game.fen());
+        state.stockfish.postMessage('go depth 12');
+      } else {
+        const moves = state.game.moves({ verbose: true });
+        if (moves.length) els.coachBox.innerText = `Coach: Try moving ${moves[0].san}`;
+      }
+    }
+
+    // ====================== P2P MULTIPLAYER ======================
+    function setupP2PConnection() {
+      state.conn.on('open', () => {
+        els.gameStatus.innerText = "Connected! Waiting for start...";
+      });
+
+      state.conn.on('data', (data) => {
+        if (data.type === 'start') {
+          startGame('p2p', data.color);
+        } else if (data.type === 'move') {
+          state.game.move({ from: data.from, to: data.to, promotion: 'q' });
+          updateBoard();
+          updateStatus();
+        }
+      });
+
+      state.conn.on('close', () => {
+        els.gameStatus.innerText = "Opponent Disconnected.";
+        state.isGameActive = false;
+      });
+    }
+
+    function joinP2PGame(hostId) {
+      state.gameMode = 'p2p';
+      els.setupMenu.classList.remove('show');
+      els.gameUI.classList.add('show');
+      els.gameStatus.innerText = "Connecting to Host...";
+
+      state.conn = state.peer.connect(hostId);
+      setupP2PConnection();
+    }
+
+    // ====================== GAME START ======================
+    function startGame(mode, color) {
+      state.gameMode = mode;
+      state.myColor = color;
+      state.isGameActive = true;
+      state.game.reset();
+
+      els.setupMenu.classList.remove('show');
+      els.inviteArea.classList.remove('show');
+      els.gameUI.classList.add('show');
+
+      if (mode === 'bot') {
+        els.coachBox.style.display = 'block';
+        els.coachControls.style.display = 'block';
+        els.coachBox.innerText = "Coach: Good luck! Control the center.";
+        initStockfish();
+      } else {
+        els.coachBox.style.display = 'none';
+        els.coachControls.style.display = 'none';
       }
 
       initBoard(color);
       updateStatus();
     }
 
-    function onUserMove(orig, dest) {
-      if (!isGameActive) return;
-      if (game.turn() !== myColor.charAt(0)) return;
-
-      const move = game.move({ from: orig, to: dest, promotion: 'q' });
-      if (!move) return; 
-
-      playSound(move.captured); // Play Sound on User Move
-
-      board.set({ fen: game.fen() });
-      updateStatus();
-      updateBoardUI();
-      
-      // Clear any arrows from hints
-      board.set({ drawable: { shapes: [] } });
-
-      if (gameMode === 'p2p' && conn && conn.open) {
-        conn.send({ type: 'move', from: orig, to: dest });
-      } 
-      else if (gameMode === 'bot') {
-        gameStatusEl.innerText = "Coach is thinking...";
-        giveCoachingFeedback(move);
-
-        if (stockfish) {
-            stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go depth 10'); 
-        } else {
-            setTimeout(makeRandomMove, 500);
-        }
-      }
-    }
-
-    // --- AI / Stockfish ---
-    function initStockfish() {
-      try {
-          const blob = new Blob(["importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js');"], {type: 'application/javascript'});
-          const url = URL.createObjectURL(blob);
-          stockfish = new Worker(url);
-          
-          stockfish.onmessage = function(event) {
-              const msg = event.data;
-              if (typeof msg === 'string' && msg.includes('bestmove')) {
-                  const parts = msg.split(' ');
-                  const bestMoveIndex = parts.indexOf('bestmove') + 1;
-                  const bestMove = parts[bestMoveIndex];
-
-                  if(bestMove && bestMove !== '(none)') {
-                      const isUserTurn = (game.turn() === myColor.charAt(0));
-                      
-                      if (isUserTurn) {
-                          // HINT RESPONSE
-                          const from = bestMove.substring(0,2);
-                          const to = bestMove.substring(2,4);
-                          coachBox.innerText = `Coach: Consider moving ${from} to ${to}.`;
-                          board.set({
-                              drawable: {
-                                  shapes: [{ brush: 'green', orig: from, dest: to }]
-                              }
-                          });
-                      } else {
-                          // BOT MOVE
-                          const from = bestMove.substring(0,2);
-                          const to = bestMove.substring(2,4);
-                          
-                          // Delay the move to seem human (800ms)
-                          setTimeout(() => {
-                              const moveRes = game.move({ from: from, to: to, promotion: 'q' });
-                              if(moveRes) playSound(moveRes.captured); // Play Sound on Bot Move
-                              
-                              board.move(from, to);
-                              updateStatus();
-                              updateBoardUI();
-                              board.set({ drawable: { shapes: [] } });
-                          }, 800);
-                      }
-                  }
-              }
-          };
-          stockfish.postMessage('uci');
-      } catch(e) {
-          console.log("Stockfish init failed");
-      }
-    }
-
-    function makeRandomMove() {
-        const moves = game.moves();
-        if(moves.length === 0) return;
-        const move = moves[Math.floor(Math.random() * moves.length)];
-        game.move(move);
-        board.set({ fen: game.fen() });
-        updateStatus();
-        updateBoardUI();
-    }
-    
-    function askCoachForHint() {
-        if (!isGameActive || gameMode !== 'bot') return;
-        
-        coachBox.innerText = "Coach is analyzing...";
-        
-        if (stockfish) {
-            stockfish.postMessage('position fen ' + game.fen());
-            stockfish.postMessage('go depth 12'); 
-        } else {
-            const moves = game.moves({ verbose: true });
-            if(moves.length > 0) {
-                const hintMove = moves[0];
-                coachBox.innerText = `Coach: Try moving ${hintMove.san}`;
-            }
-        }
-    }
-
-    function giveCoachingFeedback(move) {
-        let msg = "";
-        
-        if (move.flags.includes('e')) {
-            msg = "Ah! En Passant. A rare and beautiful capture.";
-        } else if (move.flags.includes('p')) {
-            msg = "Promotion! Use your new power wisely.";
-        } else if (move.san === 'O-O' || move.san === 'O-O-O') {
-            msg = "Good decision. King safety is priority.";
-        } else if (move.captured) {
-            msg = "Good capture! Material advantage.";
-        } else if (game.in_check()) {
-            msg = "Aggressive! They are under pressure.";
-        } else if (move.san.includes('#')) {
-            msg = "Checkmate! Excellent execution.";
-        } else {
-             const turnCount = game.history().length;
-             if (turnCount < 6) {
-                 msg = "Solid opening. Develop your pieces.";
-             } else if (turnCount < 20) {
-                 if(Math.random() > 0.8) msg = "Watch the diagonals.";
-             } else {
-                 if(Math.random() > 0.8) msg = "Every pawn counts.";
-             }
-        }
-        
-        if(msg) coachBox.innerText = "Coach: " + msg;
-    }
-
-    // --- P2P Helpers ---
-    function joinP2PGame(hostId) {
-      gameMode = 'p2p';
-      setupMenu.classList.remove('show');
-      gameUI.classList.add('show');
-      gameStatusEl.innerText = "Connecting to Host...";
-      conn = peer.connect(hostId);
-      setupP2PConnection();
-    }
-    
-    function setupP2PConnection() {
-        conn.on('open', () => {
-           gameStatusEl.innerText = "Connected! Waiting for start...";
-        });
-        conn.on('data', (data) => {
-           if(data.type === 'start') {
-               startGame('p2p', data.color);
-           } else if (data.type === 'move') {
-               game.move({ from: data.from, to: data.to, promotion: 'q' });
-               board.move(data.from, data.to);
-               updateStatus();
-               updateBoardUI();
-           }
-        });
-        conn.on('close', () => {
-           gameStatusEl.innerText = "Opponent Disconnected.";
-           isGameActive = false;
-        });
-    }
-
-    // --- Board & Utils ---
-    function updateStatus() {
-      if (game.game_over()) {
-        isGameActive = false;
-        btnNewGame.style.display = 'inline-block';
-        if (game.in_checkmate()) {
-            gameStatusEl.innerText = "Checkmate! " + (game.turn() === 'w' ? "Black" : "White") + " Wins!";
-        } else {
-             gameStatusEl.innerText = "Game Over.";
-        }
-        return;
-      }
-      const isMyTurn = (game.turn() === myColor.charAt(0));
-      if (isMyTurn) gameStatusEl.innerText = "Your Turn";
-      else gameStatusEl.innerText = "Waiting for " + (gameMode === 'bot' ? "Coach AI" : "Opponent");
-    }
-
     function initBoard(orientation) {
-      if(board) board.destroy();
-      board = Chessground(document.getElementById('board'), {
+      if (state.board) state.board.destroy();
+
+      state.board = Chessground(document.getElementById('board'), {
         fen: 'start',
         orientation: orientation,
         movable: {
           color: orientation,
           free: false,
-          dests: getLegalMoves(),
+          dests: getLegalDests(),
           events: { after: onUserMove }
         },
-        drawable: { enabled: true } // Enable drawing arrows
+        drawable: { enabled: true }
       });
-      updateBoardUI();
     }
-    
-    function updateBoardUI() {
-        if (!board) return;
-        const isMyTurn = (game.turn() === myColor.charAt(0));
-        board.set({
-            fen: game.fen(),
-            turnColor: isMyTurn ? myColor : 'grey',
-            movable: {
-                color: isMyTurn ? myColor : null,
-                dests: isMyTurn ? getLegalMoves() : new Map()
-            }
-        });
-    }
-    
-    function getLegalMoves() {
-      const dests = new Map();
-      ['a','b','c','d','e','f','g','h'].forEach(f => {
-        for(let i=1; i<=8; i++) {
-          const sq = f+i;
-          const moves = game.moves({ square: sq, verbose: true });
-          if(moves.length) dests.set(sq, moves.map(m=>m.to));
+
+    // ====================== INITIALIZATION ======================
+    function initPeer() {
+      state.peer = new Peer({ debug: 1 });
+
+      state.peer.on('open', (id) => {
+        console.log('My Peer ID:', id);
+        els.networkStatus.innerText = "Network Ready.";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const hostId = urlParams.get('game');
+        if (hostId) joinP2PGame(hostId);
+      });
+
+      state.peer.on('connection', (c) => {
+        if (state.gameMode !== 'p2p_waiting') {
+          c.close();
+          return;
         }
+        state.conn = c;
+        setupP2PConnection();
+        startGame('p2p', 'white');
+        setTimeout(() => state.conn.send({ type: 'start', color: 'black' }), 500);
       });
-      return dests;
     }
 
-    // Initial Board
-    board = Chessground(document.getElementById('board'), { viewOnly: true });
+    // ====================== EVENT LISTENERS ======================
+    function setupEventListeners() {
+      initAudio();
 
+      els.btnPlayBot.addEventListener('click', () => {
+        initAudio();
+        startGame('bot', 'white');
+      });
+
+      els.btnPlayFriend.addEventListener('click', () => {
+        initAudio();
+        state.gameMode = 'p2p_waiting';
+        const link = window.location.href.split('?')[0] + "?game=" + state.peer.id;
+        els.inviteLink.value = link;
+        els.setupMenu.classList.remove('show');
+        els.inviteArea.classList.add('show');
+      });
+
+      els.btnCopyLink.addEventListener('click', () => {
+        navigator.clipboard.writeText(els.inviteLink.value).then(() => {
+          const original = els.btnCopyLink.innerText;
+          els.btnCopyLink.innerText = "Copied!";
+          els.btnCopyLink.style.background = "#22c55e";
+          setTimeout(() => {
+            els.btnCopyLink.innerText = original;
+            els.btnCopyLink.style.background = "#333";
+          }, 2000);
+        });
+      });
+
+      els.btnCancelInvite.addEventListener('click', () => location.reload());
+      els.btnNewGame.addEventListener('click', () => location.reload());
+      els.btnHint.addEventListener('click', askCoachForHint);
+    }
+
+    // ====================== START APP ======================
+    initPeer();
+    setupEventListeners();
+
+    // Initial view-only board
+    state.board = Chessground(document.getElementById('board'), { viewOnly: true });
   </script>
 </body>
 </html>
