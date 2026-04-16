@@ -1,6 +1,27 @@
 {
   "articles": [
     {
+      "id": "n1776300592_1",
+      "title": "New Study: 15 Minutes of Nature Walking Lowers Cortisol",
+      "summary": "Researchers find that 'forest bathing' significantly reduces physiological stress markers in urban workers.",
+      "url": "https://www.nature.com/articles/s41598-021-84310-w",
+      "date": "April 15, 2026"
+    },
+    {
+      "id": "n1776300592_2",
+      "title": "Sleep and Mental Strength: The Deep Sleep Connection",
+      "summary": "How consistent REM cycles improve emotional regulation and decision-making under pressure.",
+      "url": "https://www.science.org/doi/10.1126/science.aay6911",
+      "date": "April 15, 2026"
+    },
+    {
+      "id": "n1776300592_3",
+      "title": "Resilience in the Workplace: Strategies for 2026",
+      "summary": "A guide to maintaining mental wellness and high performance during periods of rapid organizational change.",
+      "url": "https://hbr.org/2021/01/building-resilience",
+      "date": "April 15, 2026"
+    },
+    {
       "id": "n1776300075_1",
       "title": "Neuromodulation: The Next Frontier in Emotional Resilience",
       "summary": "Recent studies suggest non-invasive brain stimulation can significantly enhance stress recovery.",
@@ -20,55 +41,6 @@
       "summary": "Practical guide on shifting perspective during acute periods of professional stress.",
       "url": "https://hbr.org/2026/04/resilience-at-work",
       "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300061_1",
-      "title": "Neuromodulation: The Next Frontier in Emotional Resilience",
-      "summary": "Recent studies suggest non-invasive brain stimulation can significantly enhance stress recovery.",
-      "url": "https://www.nature.com/articles/s41598-026-mental-health",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300061_2",
-      "title": "The 'Second Brain': How Gut Health Dictates Anxiety Levels",
-      "summary": "New 2026 research clarifies the link between microbiome diversity and mental toughness.",
-      "url": "https://www.science.org/journal/science-mental-wellness",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300061_3",
-      "title": "Cognitive Reframing Techniques for High-Pressure Environments",
-      "summary": "Practical guide on shifting perspective during acute periods of professional stress.",
-      "url": "https://hbr.org/2026/04/resilience-at-work",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776299037_1",
-      "title": "Neuromodulation: The Next Frontier in Emotional Resilience",
-      "summary": "Recent studies suggest non-invasive brain stimulation can significantly enhance stress recovery.",
-      "url": "https://www.nature.com/articles/s41598-026-mental-health",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776299037_2",
-      "title": "The 'Second Brain': How Gut Health Dictates Anxiety Levels",
-      "summary": "New 2026 research clarifies the link between microbiome diversity and mental toughness.",
-      "url": "https://www.science.org/journal/science-mental-wellness",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776299037_3",
-      "title": "Cognitive Reframing Techniques for High-Pressure Environments",
-      "summary": "Practical guide on shifting perspective during acute periods of professional stress.",
-      "url": "https://hbr.org/2026/04/resilience-at-work",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1",
-      "title": "Daily 10-Minute Meditation Improves Resilience",
-      "summary": "A 2026 meta-analysis confirms even short daily mindfulness builds mental strength.",
-      "url": "https://www.mindful.org/meditation-resilience/",
-      "date": "April 3, 2026"
     }
   ]
 }
