@@ -1,67 +1,25 @@
 {
   "articles": [
     {
-      "id": "n1776690001_1",
+      "id": "n1777294801_1",
       "title": "Forest Bathing: How Nature Boosts Mental Health",
       "summary": "Japanese practice of 'shinrin-yoku' shown to lower stress hormones and improve mood.",
       "url": "https://www.apa.org/monitor/2020/07/ce-corner-nature",
-      "date": "April 20, 2026"
+      "date": "April 27, 2026"
     },
     {
-      "id": "n1776690001_2",
+      "id": "n1777294801_2",
       "title": "The Power of Deep Sleep for Emotional Resilience",
       "summary": "How quality sleep rewires the brain to handle stress better.",
       "url": "https://www.mayoclinic.org/healthy-lifestyle/adult-health/in-depth/sleep/art-20048379",
-      "date": "April 20, 2026"
+      "date": "April 27, 2026"
     },
     {
-      "id": "n1776690001_3",
+      "id": "n1777294801_3",
       "title": "Building Resilience: Evidence-Based Strategies",
       "summary": "Practical tips from psychology experts on thriving through adversity.",
       "url": "https://positivepsychology.com/resilience-theory-articles/",
-      "date": "April 20, 2026"
-    },
-    {
-      "id": "n1776300592_1",
-      "title": "New Study: 15 Minutes of Nature Walking Lowers Cortisol",
-      "summary": "Researchers find that 'forest bathing' significantly reduces physiological stress markers in urban workers.",
-      "url": "https://www.nature.com/articles/s41598-021-84310-w",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300592_2",
-      "title": "Sleep and Mental Strength: The Deep Sleep Connection",
-      "summary": "How consistent REM cycles improve emotional regulation and decision-making under pressure.",
-      "url": "https://www.science.org/doi/10.1126/science.aay6911",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300592_3",
-      "title": "Resilience in the Workplace: Strategies for 2026",
-      "summary": "A guide to maintaining mental wellness and high performance during periods of rapid organizational change.",
-      "url": "https://hbr.org/2021/01/building-resilience",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300075_1",
-      "title": "Neuromodulation: The Next Frontier in Emotional Resilience",
-      "summary": "Recent studies suggest non-invasive brain stimulation can significantly enhance stress recovery.",
-      "url": "https://www.nature.com/articles/s41598-026-mental-health",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300075_2",
-      "title": "The 'Second Brain': How Gut Health Dictates Anxiety Levels",
-      "summary": "New 2026 research clarifies the link between microbiome diversity and mental toughness.",
-      "url": "https://www.science.org/journal/science-mental-wellness",
-      "date": "April 15, 2026"
-    },
-    {
-      "id": "n1776300075_3",
-      "title": "Cognitive Reframing Techniques for High-Pressure Environments",
-      "summary": "Practical guide on shifting perspective during acute periods of professional stress.",
-      "url": "https://hbr.org/2026/04/resilience-at-work",
-      "date": "April 15, 2026"
+      "date": "April 27, 2026"
     }
   ]
 }
